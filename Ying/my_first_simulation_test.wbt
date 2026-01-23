@@ -1,0 +1,207 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/Floor.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Parquetry.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.037854491163235686 0.03765293547498141 0.9985736297083402 1.5335937175774665
+  position -0.6021443916580023 -0.7721456273379792 0.4604478156582604
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Floor {
+  size 3 4.5
+  appearance Parquetry {
+    type "chequered"
+    colorOverride 0 1 0
+  }
+}
+Solid {
+  translation -0.62 1.99 1.03
+  children [
+    DEF LEFT_DOOR Solid {
+      translation 0 -0.31 -0.52
+      rotation 0 0 1 3.14159
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 0
+          }
+          geometry Box {
+            size 0.5 0.1 1
+          }
+        }
+      ]
+      name "door_left"
+      boundingObject Box {
+        size 0.5 0.1 1
+      }
+      physics Physics {
+        mass 0.02
+      }
+    }
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.35 0.44 1
+        transparency 0.5
+      }
+      geometry DEF LEFT_WALL_GEOM Box {
+        size 0.55 0.55 2.1
+      }
+    }
+  ]
+  name "chamber_left"
+  boundingObject USE LEFT_WALL_GEOM
+}
+Solid {
+  translation 0.61 1.99 1.03
+  children [
+    DEF RIGHT_DOOR Solid {
+      translation 0 -0.31 -0.52
+      rotation 0 0 1 3.14159
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.75314 0 0.0674907
+          }
+          geometry Box {
+            size 0.5 0.1 1
+          }
+        }
+      ]
+      name "door_right"
+      boundingObject Box {
+        size 0.5 0.1 1
+      }
+      physics Physics {
+        mass 0.02
+      }
+    }
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+        transparency 0.5
+      }
+      geometry DEF RIGHT_WALL_GEOM Box {
+        size 0.55 0.55 2.1
+      }
+    }
+  ]
+  name "chamber_right"
+  boundingObject USE RIGHT_WALL_GEOM
+}
+Solid {
+  translation -0.76 1.45 0.002
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0 0 1
+        roughness 0.3
+        emissiveColor 0 0 0.6
+      }
+      geometry Box {
+        size 1.5 0.02 0.002
+      }
+    }
+  ]
+  name "blue_threshold"
+  boundingObject Box {
+    size 1.5 0.02 0.002
+  }
+}
+Solid {
+  translation 0.75 1.45 0.002
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+        roughness 0.3
+        emissiveColor 0.6 0 0
+      }
+      geometry Box {
+        size 1.5 0.02 0.002
+      }
+    }
+  ]
+  name "red_threshold"
+  boundingObject Box {
+    size 1.5 0.02 0.002
+  }
+}
+Solid {
+  translation 0.77 -0.97 0.03
+  rotation 0 0 -1 -2.618
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.35 0.44 1
+      }
+      geometry Box {
+        size 0.015 3 0.07
+      }
+    }
+  ]
+  name "wall_right"
+  boundingObject Box {
+    size 0.015 3 0.07
+  }
+}
+Solid {
+  translation 0.00024109 0.309993 0.03
+  rotation 0 0 -1 -1.5708053071795867
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.35 0.44 1
+      }
+      geometry Box {
+        size 0.015 3 0.07
+      }
+    }
+  ]
+  name "wall_right(1)"
+  boundingObject Box {
+    size 0.015 3 0.07
+  }
+}
+Solid {
+  translation -0.74 -0.96 0.03
+  rotation 0 0 -1 2.618
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.35 0.44 1
+      }
+      geometry Box {
+        size 0.015 3 0.07
+      }
+    }
+  ]
+  name "wall_left"
+  boundingObject Box {
+    size 0.015 3 0.07
+  }
+}
+Robot {
+  name "supervisor"
+  controller "supervisor"
+  supervisor TRUE
+}
+E-puck {
+  translation -1.35914e-06 0.37 0
+  rotation 0 0 1 1.5708
+  controller "brain"
+  camera_antiAliasing TRUE
+  turretSlot [
+    GPS {
+      accuracy 0.001
+    }
+  ]
+}

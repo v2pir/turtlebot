@@ -1,0 +1,37 @@
+[0.406s] Invoking command in '/home/cuttlebot/Desktop/turtlebot4_python_tutorials': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/turtlebot4_python_tutorials build --build-base /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/build install --record /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/install.log --single-version-externally-managed install_data
+[0.529s] running egg_info
+[0.530s] creating build/turtlebot4_python_tutorials/turtlebot4_python_tutorials.egg-info
+[0.538s] writing build/turtlebot4_python_tutorials/turtlebot4_python_tutorials.egg-info/PKG-INFO
+[0.538s] writing dependency_links to build/turtlebot4_python_tutorials/turtlebot4_python_tutorials.egg-info/dependency_links.txt
+[0.538s] writing entry points to build/turtlebot4_python_tutorials/turtlebot4_python_tutorials.egg-info/entry_points.txt
+[0.538s] writing requirements to build/turtlebot4_python_tutorials/turtlebot4_python_tutorials.egg-info/requires.txt
+[0.538s] writing top-level names to build/turtlebot4_python_tutorials/turtlebot4_python_tutorials.egg-info/top_level.txt
+[0.538s] writing manifest file 'build/turtlebot4_python_tutorials/turtlebot4_python_tutorials.egg-info/SOURCES.txt'
+[0.552s] reading manifest file 'build/turtlebot4_python_tutorials/turtlebot4_python_tutorials.egg-info/SOURCES.txt'
+[0.553s] writing manifest file 'build/turtlebot4_python_tutorials/turtlebot4_python_tutorials.egg-info/SOURCES.txt'
+[0.553s] running build
+[0.553s] running build_py
+[0.553s] creating /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/build
+[0.553s] creating /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/build/lib
+[0.553s] creating /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/build/lib/turtlebot4_python_tutorials
+[0.553s] copying turtlebot4_python_tutorials/turtlebot4_first_python_node.py -> /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/build/lib/turtlebot4_python_tutorials
+[0.553s] copying turtlebot4_python_tutorials/__init__.py -> /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/build/lib/turtlebot4_python_tutorials
+[0.553s] running install
+[0.556s] running install_lib
+[0.563s] creating /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/lib/python3.12/site-packages/turtlebot4_python_tutorials
+[0.563s] copying /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/build/lib/turtlebot4_python_tutorials/turtlebot4_first_python_node.py -> /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/lib/python3.12/site-packages/turtlebot4_python_tutorials
+[0.563s] copying /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/build/lib/turtlebot4_python_tutorials/__init__.py -> /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/lib/python3.12/site-packages/turtlebot4_python_tutorials
+[0.563s] byte-compiling /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/lib/python3.12/site-packages/turtlebot4_python_tutorials/turtlebot4_first_python_node.py to turtlebot4_first_python_node.cpython-312.pyc
+[0.564s] byte-compiling /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/lib/python3.12/site-packages/turtlebot4_python_tutorials/__init__.py to __init__.cpython-312.pyc
+[0.564s] running install_data
+[0.564s] creating /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/share/ament_index
+[0.564s] creating /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/share/ament_index/resource_index
+[0.564s] creating /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/share/ament_index/resource_index/packages
+[0.564s] copying resource/turtlebot4_python_tutorials -> /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/share/ament_index/resource_index/packages
+[0.564s] copying package.xml -> /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/share/turtlebot4_python_tutorials
+[0.564s] running install_egg_info
+[0.572s] Copying build/turtlebot4_python_tutorials/turtlebot4_python_tutorials.egg-info to /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/lib/python3.12/site-packages/turtlebot4_python_tutorials-0.0.0-py3.12.egg-info
+[0.572s] running install_scripts
+[0.628s] Installing turtlebot4_first_python_node script to /home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/lib/turtlebot4_python_tutorials
+[0.628s] writing list of installed files to '/home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/install.log'
+[0.641s] Invoked command in '/home/cuttlebot/Desktop/turtlebot4_python_tutorials' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/cuttlebot/Desktop/turtlebot4_python_tutorials/install/turtlebot4_python_tutorials/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/turtlebot4_python_tutorials build --build-base /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/build install --record /home/cuttlebot/Desktop/turtlebot4_python_tutorials/build/turtlebot4_python_tutorials/install.log --single-version-externally-managed install_data

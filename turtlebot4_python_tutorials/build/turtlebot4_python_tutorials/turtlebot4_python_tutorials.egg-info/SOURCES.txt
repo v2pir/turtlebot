@@ -1,0 +1,13 @@
+package.xml
+setup.cfg
+setup.py
+resource/turtlebot4_python_tutorials
+turtlebot4_python_tutorials/__init__.py
+turtlebot4_python_tutorials/turtlebot4_first_python_node.py
+turtlebot4_python_tutorials.egg-info/PKG-INFO
+turtlebot4_python_tutorials.egg-info/SOURCES.txt
+turtlebot4_python_tutorials.egg-info/dependency_links.txt
+turtlebot4_python_tutorials.egg-info/entry_points.txt
+turtlebot4_python_tutorials.egg-info/requires.txt
+turtlebot4_python_tutorials.egg-info/top_level.txt
+turtlebot4_python_tutorials.egg-info/zip-safe
