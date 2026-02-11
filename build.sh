@@ -10,7 +10,7 @@
 #   ./build.sh            # full rebuild
 #   ./build.sh --this     # rebuild only cuttlebot_nodes (faster)
 # ============================================================================
-set -euo pipefail
+set -eo pipefail
 
 ROS_DISTRO="jazzy"
 WS_DIR="$HOME/turtlebot4_ws"
