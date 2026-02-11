@@ -12,7 +12,7 @@
 # After install, run the automation launcher:
 #   python3 scripts/automation2.py
 # ============================================================================
-set -euo pipefail
+set -eo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROS_DISTRO="jazzy"
