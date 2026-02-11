@@ -1,0 +1,79 @@
+Using the turtlebot4: https://turtlebot.github.io/turtlebot4-user-manual/overview/
+NOTE: use the 'jazzy' version when following the instruction manual. Other versions will not work properly
+
+Helpful terminal commands to know:
+NOTE: ensure you are always just working in the ~/Desktop directory, because we installed everything needed in ~/Desktop
+ros2 topic list: checks all the callable topics
+ros2 pkg list: shows all runnable packages
+ros2 run [package_name] [script name]: runs that turtlebot4 package
+ros2 pkg executables: lists all executables inside all packages
+sudo apt upgrade: upgrades the turtlebot4 packages
+ros2 topic echo /clicked_point
+
+
+In the rare case that you need to ssh into the turtlebot4 raspberry pi:
+ssh ubuntu@192.168.1.56
+password: turtlebot4
+
+If you intend to use the physical robot:
+1. It should be off the charging station, so put it back onto the charging station (the dock)
+2. Wait until you hear the robot chime! This is really important. It might take up to 5-10mins until you hear the chime, but you WILL hear it so don't be hasty and start doing stuff. Just wait.
+3. After you hear the chime, feel free to leave it on the dock to keep it charging, or remove it and place it where you need it to be
+
+Map Generation:
+https://turtlebot.github.io/turtlebot4-user-manual/tutorials/generate_map.html
+
+1. Open up 3 terminals on desktop (right click desktop and select 'open in terminal')
+2. in terminal 1, paste: sudo apt install ros-jazzy-turtlebot4-navigation
+3. in terminal 2, paste: ros2 launch turtlebot4_navigation slam.launch.py
+4. in terminal 3, paste: ros2 launch turtlebot4_viz view_navigation.launch.py
+5. The nav2 GUI should pop out
+6. Bluetooth connect the black ps4 controller to the turtlebot4 by holding down the option and the home (ps button) at the same time until the light becomes blue
+	- if you run into trouble connecting the controller, you probably have to do to connection setup again: https://turtlebot.github.io/turtlebot4-user-manual/setup/basic.html#turtlebot-4-controller-setup
+	- you would have to scroll down to the 'Supplemental Configuration' section, and ssh into the turtlebot4 first, then follow the connection instructions
+7. Drive the turtlebot4 around the space you want to map. SLAM is really good at mapping
+8. Save the map after you're done:
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name:
+  data: 'map_name'"
+9. A .pgm and a .yaml file will be created. We recommend moving those files to the desktop for ease of future use
+
+Nav2 Manual GUI Interaction for navigation purposes:
+https://turtlebot.github.io/turtlebot4-user-manual/tutorials/navigation.html
+
+1. Open up 3 terminals on desktop (right click desktop and select 'open in terminal')
+2. in terminal 1, paste: ros2 launch turtlebot4_navigation localization.launch.py map:=maps/map_2.yaml
+	- please change the 'map_name' accordingly
+3. in terminal 2, paste: ros2 launch turtlebot4_navigation nav2.launch.py
+4. in terminal 3, paste: ros2 launch turtlebot4_viz view_navigation.launch.py
+5. The nav2 GUI should pop out with the map that you chose loaded
+6. Click on the '2D Pose Estimate' button on top of the GUI, click and drag to where the robot physically is in the room. Your map should reflect what the room looks like, if not, please look at the 'Map Generation' step above.
+	- The arrow that appears after you click on the map indicates where the robot is facing
+7. After you have indicated the starting position of the turtlebot4, the map should change drastically, including showing you an icon of the robot and light blue lines that wrap around the walls. If that doesn't happen, cry and start over. You might need to reboot the robot.
+8. Click on the 'Nav2 Goal' button on top of the GUI, click and drag the arrow to your desired destination. The robot will move and then face the direction of where the arrow is facing.
+9. If need, open up a 4th terminal and paste: ros2 topic echo /clicked_point
+	- click on a point on the map, and it's xyz coordinates will show
+	
+Automated Python Scripts:
+
+Doing python3 scripts/automation.py will run an automation script that runs the three setup commands and a fourth tutorial script.  Currently it runs the mail_delivery.  You still need to do '2D Pose Estimate' during the setup.
+it worked last time i did it, god knows itll work again
+
+pwd should be in ~/Desktop still, though the scripts are here:
+home/cuttlebot/turtlebot4_ws/src
+- make sure you rebuild every time you make changes to the scripts if you intend to: ros2 run
+cd ~/turtlebot4_ws
+colcon build
+source install/setup.bash
+
+- this is because ros2 run [package_name] [script name] only runs from the install/ folder, and to update the install/ folder rebuilding after modifying src/ is necessary
+
+    initial_pose = navigator.getPoseStamped([-0.023635001853108406, -0.023635001853108406], TurtleBot4Directions.NORTH)
+    
+    
+TO-DO:
+- Ensure automation script always works (worked last time)
+	- Automate 2D Pose Estimate or a workaround
+- Integrate model to Turtlebot
+	- Reverse engineer mail delivery to work with model
+	
+- Turtlebot reports its current location?

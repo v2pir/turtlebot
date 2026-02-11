@@ -1,2 +1,0 @@
-[console_scripts]
-turtlebot4_first_python_node = turtlebot4_python_tutorials.turtlebot4_first_python_node:main

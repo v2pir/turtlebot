@@ -1,9 +1,0 @@
-1. Turn off the robots, and turn off the computer (power off recommended, but not sure about what happens if just "restart")
-
-2. Move the robot back to charging point to start, and turn on the computer. Computer back to life first, so prepare the network ready, by connecting to "NETGEAR82" rather than its 5G (5G doesn't work)
-
-3. When the robot is ready (sound alert), open one terminal, and make sure it's under ~/Desktop. After that, enter:
-	python3 automation2.py
-
-All terminals and the user interface will pop up.
-
