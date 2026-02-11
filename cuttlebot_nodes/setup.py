@@ -26,6 +26,7 @@ setup(
         'console_scripts': [
             'turtlebot4_first_python_node = cuttlebot_nodes.turtlebot4_first_python_node:main',
             'nav_to_pose = cuttlebot_nodes.nav_to_pose:main',
+            'location_awareness = cuttlebot_nodes.location_awareness:main',
         ],
     },
 )
