@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cuttlebot — Project Atlas</title>
+<title>Cuttlebot — Deep Dive</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Outfit:wght@200;300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
 
@@ -28,6 +28,7 @@
   --orange-glow: rgba(255, 120, 73, 0.15);
   --red: #ff4d6a;
   --green: #3ddc84;
+  --green-glow: rgba(61, 220, 132, 0.15);
   --purple: #a78bfa;
   --yellow: #fbbf24;
 }
@@ -38,11 +39,10 @@ body {
   font-family: 'Outfit', sans-serif;
   background: var(--bg);
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.7;
   overflow-x: hidden;
 }
 
-/* === GRAIN OVERLAY === */
 body::before {
   content: '';
   position: fixed;
@@ -59,7 +59,7 @@ nav {
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(10, 11, 15, 0.85);
+  background: rgba(10, 11, 15, 0.88);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
   padding: 0 2rem;
@@ -83,28 +83,23 @@ nav .nav-links {
   display: flex;
   gap: 0.25rem;
   margin-left: auto;
+  overflow-x: auto;
 }
 
 nav .nav-links a {
   color: var(--text-dim);
   text-decoration: none;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 400;
-  padding: 0.4rem 0.85rem;
+  padding: 0.35rem 0.7rem;
   border-radius: 6px;
   transition: all 0.2s;
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
-nav .nav-links a:hover {
-  color: var(--text);
-  background: var(--bg-card);
-}
-
-nav .nav-links a.active {
-  color: var(--cyan);
-  background: var(--cyan-glow);
-}
+nav .nav-links a:hover { color: var(--text); background: var(--bg-card); }
+nav .nav-links a.active { color: var(--cyan); background: var(--cyan-glow); }
 
 /* === HERO === */
 .hero {
@@ -147,10 +142,9 @@ nav .nav-links a.active {
 }
 
 .hero h1 {
-  font-family: 'Outfit', sans-serif;
   font-weight: 800;
-  font-size: clamp(3rem, 8vw, 6rem);
-  line-height: 1;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  line-height: 1.05;
   letter-spacing: -0.03em;
   position: relative;
   z-index: 1;
@@ -163,7 +157,7 @@ nav .nav-links a.active {
 .hero .subtitle {
   font-size: 1.15rem;
   color: var(--text-dim);
-  max-width: 560px;
+  max-width: 640px;
   margin-top: 1.5rem;
   position: relative;
   z-index: 1;
@@ -201,8 +195,8 @@ nav .nav-links a.active {
 }
 
 /* === SECTIONS === */
-section {
-  max-width: 1100px;
+.content-section {
+  max-width: 900px;
   margin: 0 auto;
   padding: 5rem 2rem;
 }
@@ -229,52 +223,99 @@ section {
 .section-label.cyan .dot { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
 .section-label.orange { color: var(--orange); }
 .section-label.orange .dot { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+.section-label.green { color: var(--green); }
+.section-label.green .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
 .section-label.purple { color: var(--purple); }
 .section-label.purple .dot { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
 
-section h2 {
+.content-section h2 {
   font-weight: 700;
-  font-size: 2.2rem;
+  font-size: 2rem;
   letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
 }
 
-section .section-desc {
+.content-section .section-desc {
   color: var(--text-dim);
   font-size: 1rem;
   max-width: 620px;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
   font-weight: 300;
 }
 
-/* === FILE TREE === */
-.file-tree {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.5rem 2rem;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.78rem;
-  line-height: 2;
-  color: var(--text-dim);
-  margin-bottom: 3rem;
-  overflow-x: auto;
+.content-section h3 {
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin-top: 3rem;
+  margin-bottom: 0.75rem;
+  color: var(--text);
 }
 
-.file-tree .folder { color: var(--blue); }
-.file-tree .py { color: var(--cyan); }
-.file-tree .map { color: var(--green); }
-.file-tree .txt { color: var(--yellow); }
-.file-tree .wbt { color: var(--orange); }
-.file-tree .dim { color: var(--text-muted); }
+.content-section p {
+  color: var(--text-dim);
+  margin-bottom: 1.25rem;
+  font-weight: 300;
+  font-size: 0.95rem;
+}
+
+.content-section p strong { color: var(--text); font-weight: 500; }
+.content-section p .hl-cyan { color: var(--cyan); }
+.content-section p .hl-orange { color: var(--orange); }
+.content-section p .hl-green { color: var(--green); }
+.content-section p .hl-red { color: var(--red); }
+
+/* === DIVIDERS === */
+.section-divider {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* === CODE BLOCKS === */
+.code-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  position: relative;
+}
+
+.code-block .code-label {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.8rem;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.code-block .kw { color: var(--purple); }
+.code-block .fn { color: var(--cyan); }
+.code-block .str { color: var(--green); }
+.code-block .num { color: var(--orange); }
+.code-block .cm { color: var(--text-muted); font-style: italic; }
+.code-block .op { color: var(--text); }
+.code-block .var { color: var(--yellow); }
 
 /* === DIAGRAM CONTAINERS === */
 .diagram-wrap {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 2.5rem;
-  margin-bottom: 2.5rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
   position: relative;
   overflow: hidden;
 }
@@ -289,660 +330,239 @@ section .section-desc {
 
 .diagram-title {
   font-family: 'DM Mono', monospace;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--text-muted);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   position: relative;
 }
 
-/* === SVG DIAGRAMS === */
-svg text {
-  font-family: 'Outfit', sans-serif;
-}
-
-svg .mono {
-  font-family: 'DM Mono', monospace;
-}
-
-/* === FLOW CARDS === */
-.flow-horizontal {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  overflow-x: auto;
-  padding: 1rem 0;
-  position: relative;
-}
-
-.flow-step {
-  flex-shrink: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.2rem 1.4rem;
-  min-width: 180px;
-  max-width: 200px;
-  transition: all 0.3s;
-  cursor: default;
-  position: relative;
-}
-
-.flow-step:hover {
-  border-color: var(--border-light);
-  background: var(--bg-card-hover);
-  transform: translateY(-3px);
-}
-
-.flow-step.cyan:hover { border-color: var(--cyan-dim); box-shadow: 0 8px 30px var(--cyan-glow); }
-.flow-step.orange:hover { border-color: var(--orange-dim); box-shadow: 0 8px 30px var(--orange-glow); }
-
-.flow-step .step-num {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  margin-bottom: 0.4rem;
-  letter-spacing: 0.1em;
-}
-
-.flow-step .step-num.cyan { color: var(--cyan); }
-.flow-step .step-num.orange { color: var(--orange); }
-
-.flow-step h4 {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.3rem;
-}
-
-.flow-step p {
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  line-height: 1.5;
-}
-
-.flow-arrow {
-  flex-shrink: 0;
-  width: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: 1.2rem;
-}
-
-.flow-arrow svg {
-  width: 32px;
-  height: 20px;
-}
-
-/* === REGEX PATTERN CARDS === */
-.pattern-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem 1.2rem;
-  margin-bottom: 0.75rem;
-  transition: all 0.25s;
-}
-
-.pattern-card:hover {
-  border-color: var(--cyan-dim);
-  background: var(--bg-card-hover);
-}
-
-.pattern-card .p-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 1rem;
-  background: var(--cyan-glow);
-  border: 1px solid var(--cyan-dim);
-}
-
-.pattern-card .p-content { flex: 1; }
-.pattern-card .p-name {
-  font-weight: 500;
-  font-size: 0.85rem;
-  margin-bottom: 0.15rem;
-}
-
-.pattern-card .p-regex {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.72rem;
-  color: var(--cyan);
-  background: rgba(56,217,245,0.08);
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  display: inline-block;
-  margin-top: 0.25rem;
-}
-
-.pattern-card .p-desc {
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  margin-top: 0.3rem;
-}
-
-/* === TWO COL === */
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-}
-
-@media (max-width: 768px) {
-  .two-col { grid-template-columns: 1fr; }
-}
-
+/* === INFO CARDS === */
 .info-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.3s;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  transition: border-color 0.3s;
 }
 
-.info-card:hover {
-  border-color: var(--border-light);
-  background: var(--bg-card-hover);
-}
+.info-card:hover { border-color: var(--border-light); }
 
-.info-card h4 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.info-card h4 .file-badge {
+.info-card .card-label {
   font-family: 'DM Mono', monospace;
   font-size: 0.68rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  background: var(--cyan-glow);
-  color: var(--cyan);
-  border: 1px solid var(--cyan-dim);
-  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
 }
 
-.info-card h4 .file-badge.orange {
-  background: var(--orange-glow);
-  color: var(--orange);
-  border-color: var(--orange-dim);
-}
+.info-card .card-label.cyan { color: var(--cyan); }
+.info-card .card-label.orange { color: var(--orange); }
+.info-card .card-label.green { color: var(--green); }
 
 .info-card p {
-  font-size: 0.82rem;
-  color: var(--text-dim);
-  line-height: 1.6;
+  font-size: 0.88rem;
+  margin-bottom: 0;
 }
 
-.info-card ul {
-  list-style: none;
-  margin-top: 0.5rem;
-}
-
-.info-card ul li {
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  padding: 0.2rem 0;
-  padding-left: 1rem;
-  position: relative;
-}
-
-.info-card ul li::before {
-  content: '›';
-  position: absolute;
-  left: 0;
-  color: var(--text-muted);
-}
-
-/* === STATE MACHINE DIAGRAM === */
-.state-machine {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem 0;
-}
-
-.state-node {
+/* === EXPANDABLE === */
+.expandable {
   background: var(--bg-card);
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 0.7rem 1.1rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  transition: all 0.3s;
-  cursor: default;
-  text-align: center;
-  min-width: 90px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
 }
 
-.state-node:hover {
-  transform: scale(1.05);
-}
-
-.state-node.active-state {
-  border-color: var(--orange);
-  box-shadow: 0 0 20px var(--orange-glow);
-  color: var(--orange);
-}
-
-.state-node.blue-state {
-  border-color: var(--blue);
-  color: var(--blue);
-}
-
-.state-node.blue-state:hover { box-shadow: 0 0 20px rgba(77,124,255,0.2); }
-
-.state-node.red-state {
-  border-color: var(--red);
-  color: var(--red);
-}
-
-.state-node.red-state:hover { box-shadow: 0 0 20px rgba(255,77,106,0.2); }
-
-.state-node.green-state {
-  border-color: var(--green);
-  color: var(--green);
-}
-
-.state-node.green-state:hover { box-shadow: 0 0 20px rgba(61,220,132,0.2); }
-
-.state-arrow {
-  color: var(--text-muted);
-  font-size: 1.1rem;
-  padding: 0 0.15rem;
-}
-
-/* === CHAMBER DIAGRAM === */
-.chamber-diagram {
-  position: relative;
-  width: 100%;
-  max-width: 560px;
-  margin: 0 auto;
-  aspect-ratio: 4/3;
-}
-
-.chamber {
-  position: absolute;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  transition: all 0.4s;
-  cursor: default;
-}
-
-.chamber:hover {
-  transform: scale(1.03);
-}
-
-.chamber-left {
-  left: 4%;
-  top: 4%;
-  width: 42%;
-  height: 55%;
-  background: rgba(77, 124, 255, 0.08);
-  border: 2px solid rgba(77, 124, 255, 0.3);
-}
-
-.chamber-left:hover {
-  border-color: rgba(77, 124, 255, 0.6);
-  box-shadow: 0 0 40px rgba(77, 124, 255, 0.1);
-}
-
-.chamber-right {
-  right: 4%;
-  top: 4%;
-  width: 42%;
-  height: 55%;
-  background: rgba(255, 77, 106, 0.08);
-  border: 2px solid rgba(255, 77, 106, 0.3);
-}
-
-.chamber-right:hover {
-  border-color: rgba(255, 77, 106, 0.6);
-  box-shadow: 0 0 40px rgba(255, 77, 106, 0.1);
-}
-
-.chamber .ch-label {
+.expandable summary {
+  padding: 1rem 1.5rem;
+  cursor: pointer;
   font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--text);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: background 0.2s;
+  user-select: none;
+}
+
+.expandable summary:hover { background: var(--bg-card-hover); }
+
+.expandable summary::before {
+  content: '>';
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+}
+
+.expandable[open] summary::before { transform: rotate(90deg); }
+
+.expandable .expand-content {
+  padding: 0 1.5rem 1.25rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  font-weight: 300;
+}
+
+.expandable .expand-content p { font-size: 0.88rem; }
+
+/* === MATH BLOCK === */
+.math-block {
+  background: var(--bg-card);
+  border-left: 3px solid var(--orange);
+  border-radius: 0 10px 10px 0;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 2;
+  color: var(--text);
+}
+
+.math-block .math-label {
   font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin-bottom: 0.4rem;
-}
-
-.chamber-left .ch-label { color: var(--blue); }
-.chamber-right .ch-label { color: var(--red); }
-
-.chamber .ch-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-
-.chamber .ch-title {
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 0.2rem;
-}
-
-.chamber .ch-detail {
-  font-size: 0.72rem;
-  color: var(--text-dim);
-}
-
-.chamber .ch-reward {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.7rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 100px;
-  margin-top: 0.5rem;
-}
-
-.chamber-left .ch-reward {
-  background: rgba(77,124,255,0.15);
-  color: var(--blue);
-}
-
-.chamber-right .ch-reward {
-  background: rgba(255,77,106,0.15);
-  color: var(--red);
-}
-
-.chamber-robot {
-  position: absolute;
-  bottom: 8%;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-}
-
-.chamber-robot .robot-icon {
-  width: 48px;
-  height: 48px;
-  background: var(--bg-card);
-  border: 2px solid var(--orange);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  margin: 0 auto 0.4rem;
-  box-shadow: 0 0 20px var(--orange-glow);
-  animation: pulse-bot 2s ease-in-out infinite;
-}
-
-@keyframes pulse-bot {
-  0%, 100% { box-shadow: 0 0 20px var(--orange-glow); }
-  50% { box-shadow: 0 0 35px rgba(255,120,73,0.3); }
-}
-
-.chamber-robot .robot-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.68rem;
+  letter-spacing: 0.1em;
   color: var(--orange);
+  margin-bottom: 0.5rem;
 }
 
-.threshold-line {
-  position: absolute;
-  height: 2px;
-  top: 62%;
-  width: 42%;
-}
+.math-block .dim { color: var(--text-muted); }
+.math-block .hl { color: var(--orange); }
+.math-block .hl-cyan { color: var(--cyan); }
+.math-block .hl-green { color: var(--green); }
 
-.threshold-line.left {
-  left: 4%;
-  background: linear-gradient(90deg, transparent, var(--blue), transparent);
-}
-
-.threshold-line.right {
-  right: 4%;
-  background: linear-gradient(90deg, transparent, var(--red), transparent);
-}
-
-.threshold-label {
-  position: absolute;
-  top: 64%;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.6rem;
-  color: var(--text-muted);
-}
-
-.threshold-label.left { left: 12%; }
-.threshold-label.right { right: 12%; }
-
-.funnel-line {
-  position: absolute;
-  width: 2px;
-  height: 30%;
-  bottom: 5%;
-}
-
-.funnel-line.left-wall {
-  left: 18%;
-  background: linear-gradient(180deg, var(--border-light), transparent);
-  transform: rotate(-15deg);
-  transform-origin: top center;
-}
-
-.funnel-line.right-wall {
-  right: 18%;
-  background: linear-gradient(180deg, var(--border-light), transparent);
-  transform: rotate(15deg);
-  transform-origin: top center;
-}
-
-/* === FEEDBACK LOOP === */
-.feedback-loop {
-  display: flex;
-  justify-content: center;
-  padding: 1rem 0;
-}
-
-.loop-container {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  grid-template-rows: auto auto auto;
-  gap: 0.5rem;
-  align-items: center;
-  max-width: 600px;
-  width: 100%;
-}
-
-.loop-node {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem 1.2rem;
-  text-align: center;
-  transition: all 0.3s;
-}
-
-.loop-node:hover {
-  border-color: var(--border-light);
-  transform: scale(1.02);
-}
-
-.loop-node h5 {
-  font-size: 0.82rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.loop-node p {
-  font-size: 0.72rem;
-  color: var(--text-dim);
-}
-
-.loop-arrow-down, .loop-arrow-right, .loop-arrow-up {
-  color: var(--text-muted);
-  text-align: center;
-  font-size: 0.9rem;
-}
-
-/* === CODE SNIPPET === */
-.code-block {
-  background: #0d0e14;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.2rem 1.5rem;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.75rem;
-  line-height: 1.8;
+/* === Q-TABLE === */
+.qtable-wrap {
   overflow-x: auto;
-  margin: 1.5rem 0;
-  position: relative;
+  margin-bottom: 1.5rem;
 }
 
-.code-block .code-label {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.8rem;
-  font-size: 0.6rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.code-block .kw { color: var(--purple); }
-.code-block .fn { color: var(--cyan); }
-.code-block .str { color: var(--green); }
-.code-block .num { color: var(--orange); }
-.code-block .cm { color: var(--text-muted); font-style: italic; }
-.code-block .op { color: var(--text-dim); }
-
-/* === BIG PICTURE === */
-.big-picture-grid {
-  display: grid;
-  grid-template-columns: 1fr 80px 1fr;
-  gap: 0;
-  align-items: center;
-  margin: 2rem 0;
-}
-
-.bp-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2rem;
-  text-align: center;
-  transition: all 0.4s;
-}
-
-.bp-card:hover {
-  transform: translateY(-4px);
-}
-
-.bp-card.cyan-card:hover {
-  border-color: var(--cyan-dim);
-  box-shadow: 0 12px 40px var(--cyan-glow);
-}
-
-.bp-card.orange-card:hover {
-  border-color: var(--orange-dim);
-  box-shadow: 0 12px 40px var(--orange-glow);
-}
-
-.bp-card .bp-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.bp-card h3 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-}
-
-.bp-card p {
-  font-size: 0.82rem;
-  color: var(--text-dim);
-}
-
-.bp-arrow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  color: var(--purple);
-}
-
-.bp-arrow .arrow-line {
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--cyan), var(--orange));
-  border-radius: 1px;
-}
-
-.bp-arrow span {
+.qtable {
+  width: 100%;
+  border-collapse: collapse;
   font-family: 'DM Mono', monospace;
-  font-size: 0.6rem;
-  color: var(--purple);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 0.8rem;
 }
 
-/* === MAP EXPLAINER === */
-.map-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-.map-swatch {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
-  text-align: center;
-  transition: all 0.3s;
-}
-
-.map-swatch:hover { border-color: var(--border-light); }
-
-.map-swatch .swatch-color {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  margin: 0 auto 0.6rem;
-  border: 1px solid var(--border);
-}
-
-.map-swatch .swatch-color.white { background: #e8e8e8; }
-.map-swatch .swatch-color.black { background: #1a1a1a; }
-.map-swatch .swatch-color.gray { background: #808080; }
-
-.map-swatch h5 {
-  font-size: 0.82rem;
-  font-weight: 500;
-  margin-bottom: 0.15rem;
-}
-
-.map-swatch p {
+.qtable th {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: 400;
   font-size: 0.7rem;
-  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border);
 }
 
-/* === SCROLL REVEAL === */
+.qtable td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  transition: all 0.2s;
+}
+
+.qtable tr:hover td { background: var(--bg-card); color: var(--text); }
+
+.qtable .state-name { color: var(--text); font-weight: 500; }
+.qtable .val-high { color: var(--green); font-weight: 500; }
+.qtable .val-low { color: var(--text-muted); }
+.qtable .val-zero { color: var(--text-muted); opacity: 0.5; }
+.qtable .correct-marker { color: var(--green); font-size: 0.7rem; }
+.qtable .state-desc { color: var(--text-muted); font-size: 0.7rem; font-weight: 300; font-family: 'Outfit', sans-serif; }
+
+/* === FLOW STEPS === */
+.flow-steps {
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 2rem;
+}
+
+.flow-steps::before {
+  content: '';
+  position: absolute;
+  left: 0.45rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 1px;
+  background: var(--border);
+}
+
+.flow-step {
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding-left: 0.5rem;
+}
+
+.flow-step::before {
+  content: '';
+  position: absolute;
+  left: -1.65rem;
+  top: 0.55rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg);
+}
+
+.flow-step.cyan::before { border-color: var(--cyan); background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+.flow-step.orange::before { border-color: var(--orange); background: var(--orange); box-shadow: 0 0 6px var(--orange); }
+.flow-step.green::before { border-color: var(--green); background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+.flow-step .step-title {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+
+.flow-step p { font-size: 0.88rem; margin-bottom: 0.5rem; }
+
+/* === SVG STYLES === */
+.room-svg text { font-family: 'DM Mono', monospace; }
+.room-svg .wall { fill: #363a50; stroke: #4a4e68; stroke-width: 0.5; }
+.room-svg .divider { fill: #555872; stroke: #6b6f8a; stroke-width: 0.5; }
+.room-svg .marker-blue { fill: rgba(77, 124, 255, 0.5); stroke: var(--blue); stroke-width: 0.5; }
+.room-svg .marker-red { fill: rgba(255, 77, 106, 0.35); stroke: var(--red); stroke-width: 0.5; }
+.room-svg .ground { fill: #1a1c28; stroke: var(--border); stroke-width: 0.5; }
+.room-svg .zone-label { fill: var(--text-muted); font-size: 3.5px; text-anchor: middle; }
+.room-svg .coord-label { fill: var(--text-muted); font-size: 2.8px; text-anchor: middle; font-style: italic; }
+.room-svg .wall-label { fill: var(--text-muted); font-size: 2.5px; text-anchor: middle; }
+.room-svg .robot { fill: var(--cyan); stroke: #fff; stroke-width: 0.3; }
+.room-svg .dim-line { stroke: var(--text-muted); stroke-width: 0.15; stroke-dasharray: 0.5; }
+.room-svg .gap-label { fill: var(--green); font-size: 2.5px; text-anchor: middle; }
+.room-svg .zone-boundary { stroke: var(--text-muted); stroke-width: 0.15; stroke-dasharray: 1 0.5; fill: none; }
+.room-svg .nav-path { fill: none; stroke: var(--cyan); stroke-width: 0.3; stroke-dasharray: 1 0.5; opacity: 0.5; }
+
+/* === SEQUENCE DIAGRAM === */
+.seq-svg text { font-family: 'DM Mono', monospace; }
+.seq-svg .lane-line { stroke: var(--border); stroke-width: 0.5; stroke-dasharray: 2; }
+.seq-svg .msg-line { stroke-width: 1; }
+.seq-svg .msg-label { font-size: 5px; }
+.seq-svg .lane-label { font-size: 5.5px; font-weight: 500; }
+.seq-svg .action-box { rx: 2; ry: 2; }
+.seq-svg .action-label { font-size: 4.5px; }
+.seq-svg .phase-label { font-size: 6px; font-weight: 600; }
+
+/* === RESPONSIVE === */
+@media (max-width: 700px) {
+  nav .nav-links { display: none; }
+  .content-section { padding: 3rem 1.25rem; }
+  .diagram-wrap { padding: 1.25rem; }
+  .code-block { padding: 1rem; font-size: 0.72rem; }
+}
+
+/* === SCROLL ANIMATIONS === */
 .reveal {
   opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .reveal.visible {
@@ -950,131 +570,44 @@ svg .mono {
   transform: translateY(0);
 }
 
-/* === FOOTER === */
-footer {
-  text-align: center;
-  padding: 3rem 2rem;
-  border-top: 1px solid var(--border);
-  margin-top: 2rem;
-}
-
-footer p {
+/* === STEP COUNTER === */
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   font-family: 'DM Mono', monospace;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  nav { padding: 0 1rem; gap: 1rem; }
-  nav .nav-links a { font-size: 0.7rem; padding: 0.3rem 0.6rem; }
-  section { padding: 3rem 1.25rem; }
-  section h2 { font-size: 1.6rem; }
-  .flow-horizontal { flex-direction: column; align-items: stretch; }
-  .flow-arrow { transform: rotate(90deg); width: auto; padding: 0.3rem 0; }
-  .flow-step { max-width: none; }
-  .big-picture-grid { grid-template-columns: 1fr; gap: 1rem; }
-  .bp-arrow { flex-direction: row; }
-  .bp-arrow .arrow-line { width: 2px; height: 40px; background: linear-gradient(180deg, var(--cyan), var(--orange)); }
-  .map-grid { grid-template-columns: 1fr; }
-  .chamber-diagram { aspect-ratio: 3/4; }
-}
-
-/* === TABS === */
-.tab-container {
-  margin-bottom: 2rem;
-}
-
-.tab-buttons {
-  display: flex;
-  gap: 0.25rem;
-  margin-bottom: 1.5rem;
-  background: var(--bg-card);
-  border-radius: 10px;
-  padding: 0.3rem;
-  border: 1px solid var(--border);
-  width: fit-content;
-}
-
-.tab-btn {
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.65rem;
   font-weight: 500;
-  padding: 0.5rem 1.2rem;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: var(--text-dim);
-  cursor: pointer;
-  transition: all 0.2s;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
 }
 
-.tab-btn:hover { color: var(--text); }
-.tab-btn.active { background: var(--bg-elevated); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.step-num.cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid var(--cyan-dim); }
+.step-num.orange { background: var(--orange-glow); color: var(--orange); border: 1px solid var(--orange-dim); }
+.step-num.green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(61,220,132,0.3); }
 
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeUp 0.4s ease-out; }
-
-/* === MECHANISM CARDS === */
-.mech-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (max-width: 768px) {
-  .mech-grid { grid-template-columns: 1fr; }
-}
-
-.mech-card {
+/* === INLINE CODE === */
+code {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82em;
   background: var(--bg-card);
+  padding: 0.15em 0.45em;
+  border-radius: 4px;
+  color: var(--cyan);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.3rem 1.5rem;
-  transition: all 0.3s;
 }
 
-.mech-card:hover {
-  border-color: var(--orange-dim);
-  background: var(--bg-card-hover);
-}
+code.orange { color: var(--orange); }
+code.green { color: var(--green); }
+code.plain { color: var(--text-dim); }
 
-.mech-card .mech-num {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.62rem;
-  color: var(--orange);
-  letter-spacing: 0.1em;
-  margin-bottom: 0.4rem;
-}
-
-.mech-card h4 {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.35rem;
-}
-
-.mech-card p {
-  font-size: 0.78rem;
-  color: var(--text-dim);
-  line-height: 1.55;
-}
-
-.mech-card code {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.72rem;
-  color: var(--orange);
-  background: var(--orange-glow);
-  padding: 0.1rem 0.4rem;
-  border-radius: 3px;
-}
-
-/* Divider */
-.section-divider {
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--border-light), transparent);
-  margin: 4rem 0;
+/* robot animation in SVG */
+@keyframes robotPulse {
+  0%, 100% { r: 1.2; opacity: 1; }
+  50% { r: 1.6; opacity: 0.6; }
 }
 </style>
 </head>
@@ -1082,452 +615,1095 @@ footer p {
 
 <!-- NAV -->
 <nav>
-  <div class="logo">&#9670; cuttlebot</div>
+  <div class="logo">cuttlebot // deep dive</div>
   <div class="nav-links">
-    <a href="#overview" class="active">Overview</a>
-    <a href="#turtlebot">TurtleBot4</a>
-    <a href="#cuttlefish">Cuttlefish Brain</a>
-    <a href="#bigpicture">Big Picture</a>
+    <a href="#launch">Launch</a>
+    <a href="#room">Room</a>
+    <a href="#location">Location</a>
+    <a href="#qlearning">Q-Learning</a>
+    <a href="#brain">Brain</a>
+    <a href="#experiment">Experiment</a>
+    <a href="#results">Results</a>
+    <a href="#fullflow">Full Flow</a>
   </div>
 </nav>
 
 <!-- HERO -->
-<div class="hero" id="overview">
-  <h1><span class="accent-cyan">Turtle</span>bot meets<br><span class="accent-orange">Cuttle</span>fish</h1>
-  <p class="subtitle">A robotics project that puts a biologically-inspired cuttlefish decision-making brain onto a physical TurtleBot4 robot.</p>
+<div class="hero">
+  <h1>
+    The <span class="accent-orange">Cuttlefish</span><br>
+    <span class="accent-cyan">Simulation</span> Guide
+  </h1>
+  <p class="subtitle">
+    Everything that happens when you run the delayed gratification experiment.
+    Every file, every function, every line of math — explained so you could rewrite it from scratch.
+  </p>
   <div class="pill-row">
-    <span class="pill cyan">ROS 2 Jazzy</span>
-    <span class="pill cyan">Nav2</span>
-    <span class="pill orange">Webots</span>
-    <span class="pill orange">Episodic Memory</span>
-    <span class="pill">Python</span>
+    <span class="pill cyan">sim.py</span>
+    <span class="pill cyan">location_awareness.py</span>
+    <span class="pill orange">delayed_gratification.py</span>
+    <span class="pill orange">brain_node.py</span>
+    <span class="pill orange">state_manager.py</span>
+    <span class="pill">plot_results.py</span>
   </div>
 </div>
 
-<!-- FILE TREE -->
-<section>
-  <div class="reveal">
-    <div class="section-label cyan"><span class="dot"></span> Project Structure</div>
-    <h2>What's in the repo</h2>
-    <p class="section-desc">Two distinct subsystems living side by side &mdash; physical robot navigation and a simulated brain experiment.</p>
 
-    <div class="file-tree">
-<span class="folder">Turtlebot/</span>
-├── <span class="folder">scripts/</span>
-│   ├── <span class="py">automation.py</span>       <span class="dim">← simple 4-terminal launcher (v1)</span>
-│   └── <span class="py">automation2.py</span>      <span class="dim">← smart launcher, waits for readiness (v2)</span>
-├── <span class="folder">maps/</span>
-│   ├── <span class="map">map_2.pgm</span> + <span class="map">map_2.yaml</span>   <span class="dim">← occupancy grid map (small room)</span>
-│   └── <span class="map">map_name.pgm</span> + <span class="map">.yaml</span>  <span class="dim">← occupancy grid map (large room)</span>
-├── <span class="folder">docs/</span>
-│   ├── <span class="txt">turtlebot4_helpful_notes.txt</span>
-│   └── <span class="txt">run_automation_steps.txt</span>
-├── <span class="folder">cuttlebot_nodes/</span>              <span class="dim">← ROS 2 package</span>
-│   └── <span class="folder">cuttlebot_nodes/</span>          <span class="dim">← node scripts</span>
-│       ├── <span class="py">turtlebot4_first_python_node.py</span>  <span class="dim">← button → LED demo</span>
-│       └── <span class="py">nav_to_pose.py</span>  <span class="dim">← autonomous navigate-to-goal</span>
-└── <span class="folder">cuttlefish_sim/</span>               <span class="dim">← Webots simulation</span>
-    ├── <span class="folder">controllers/brain/</span>
-    │   └── <span class="py">brain.py</span>        <span class="dim">← Webots e-puck controller</span>
-    ├── <span class="folder">libraries/</span>
-    │   └── <span class="py">cuttlefish_model.py</span>  <span class="dim">← cuttlefish brain model</span>
-    └── <span class="folder">worlds/</span>
-        └── <span class="wbt">my_first_simulation_test.wbt</span>
+<!-- ============================================================ -->
+<!-- SECTION 1: LAUNCH -->
+<!-- ============================================================ -->
+<div class="section-divider"></div>
+<section id="launch" class="content-section">
+  <div class="section-label cyan"><span class="dot"></span>01 — Launch</div>
+  <h2>What happens when you run sim.py</h2>
+  <p class="section-desc">You type <code>python3 scripts/sim.py</code> and the entire simulation starts. Here's every step.</p>
+
+  <h3>The Symlink Trick</h3>
+  <p>TurtleBot4's Gazebo launcher only looks for world files in one specific system directory: <code class="plain">/opt/ros/jazzy/share/turtlebot4_gz_bringup/worlds/</code>. Our world file lives in our repo at <code class="plain">cuttlefish_sim/sim_gazebo/worlds/cuttlebot_world.sdf</code>. So we create a <strong>symlink</strong> — a shortcut — from the system directory pointing to our file.</p>
+
+  <div class="code-block">
+    <span class="code-label">sim.py : 37-41</span>
+<span class="var">system_worlds</span> = <span class="str">"/opt/ros/jazzy/share/turtlebot4_gz_bringup/worlds"</span>
+<span class="var">link_path</span> = os.path.join(system_worlds, WORLD_NAME + <span class="str">".sdf"</span>)
+<span class="kw">if not</span> os.path.exists(link_path):
+    subprocess.run([<span class="str">"sudo"</span>, <span class="str">"ln"</span>, <span class="str">"-sf"</span>, world_sdf, link_path], check=<span class="num">True</span>)
+  </div>
+
+  <p><code class="plain">ln -sf</code> means: <code class="plain">-s</code> = symbolic link (not a copy, a pointer), <code class="plain">-f</code> = force (overwrite if it already exists). <code class="plain">sudo</code> is needed because it's a system directory. This only runs once — the <code>if not os.path.exists</code> check skips it after that.</p>
+
+  <h3>The Gazebo Command</h3>
+  <div class="code-block">
+    <span class="code-label">sim.py : 44-50</span>
+<span class="var">gazebo_cmd</span> = [
+    <span class="str">"ros2"</span>, <span class="str">"launch"</span>, <span class="str">"turtlebot4_gz_bringup"</span>, <span class="str">"turtlebot4_gz.launch.py"</span>,
+    <span class="str">f"world:={WORLD_NAME}"</span>,       <span class="cm"># use our custom world</span>
+    <span class="str">"slam:=true"</span>,                  <span class="cm"># build map + track position</span>
+    <span class="str">"nav2:=true"</span>,                  <span class="cm"># path planning + driving</span>
+    <span class="str">"rviz:=true"</span>,                  <span class="cm"># graphical visualization window</span>
+]
+  </div>
+
+  <p>Let's break down each piece:</p>
+
+  <details class="expandable">
+    <summary><code>ros2 launch</code> vs <code>ros2 run</code></summary>
+    <div class="expand-content">
+      <p><code>ros2 run</code> starts a <strong>single node</strong> — one program. <code>ros2 launch</code> runs a <strong>launch file</strong> that can start dozens of nodes at once with configuration. The TurtleBot4 launch file starts the Gazebo simulator, spawns the robot model, starts all sensor plugins, and creates the ROS 2 bridge between Gazebo and ROS topics.</p>
+    </div>
+  </details>
+
+  <details class="expandable">
+    <summary><code>world:=cuttlebot_world</code> — what this means</summary>
+    <div class="expand-content">
+      <p>This is a ROS 2 launch argument. It tells the launch file to load our <code class="plain">cuttlebot_world.sdf</code> instead of the default warehouse world. Because we symlinked our file into the system worlds directory, Gazebo can find it by name.</p>
+    </div>
+  </details>
+
+  <details class="expandable">
+    <summary><code>slam:=true</code> — Simultaneous Localization and Mapping</summary>
+    <div class="expand-content">
+      <p>SLAM builds a map of the room as the robot drives around using its lidar sensor, and simultaneously tracks where the robot is on that map. It outputs an occupancy grid (each pixel = free/wall/unknown) and publishes the robot's estimated pose.</p>
+    </div>
+  </details>
+
+  <details class="expandable">
+    <summary><code>nav2:=true</code> — Navigation 2 Stack</summary>
+    <div class="expand-content">
+      <p>Nav2 is the path planner. When you tell the robot "go to (2.5, 1.5)", Nav2 plans a collision-free path around walls and obstacles, sends velocity commands to the wheels to follow that path, and continuously re-plans if the robot drifts. It includes: a global planner (full path), a local controller (smooth driving), costmaps (obstacle avoidance layers), and recovery behaviors (what to do if stuck).</p>
+    </div>
+  </details>
+
+  <details class="expandable">
+    <summary><code>rviz:=true</code> — Visualization</summary>
+    <div class="expand-content">
+      <p>Opens RViz, a graphical window that shows you the map, the robot's position as a dot, the planned path as a line, laser scan points, costmap layers, etc. Purely for observation — it doesn't affect the simulation.</p>
+    </div>
+  </details>
+
+  <h3>Background Process</h3>
+  <p><code>subprocess.Popen(gazebo_cmd)</code> starts Gazebo as a <strong>background process</strong>. <code class="plain">Popen</code> means "start this and keep going." If we used <code class="plain">subprocess.run()</code> instead, it would <strong>block</strong> — sim.py would freeze on that line until Gazebo exits, and we'd never launch the experiment nodes.</p>
+
+  <h3>The 15-Second Wait</h3>
+  <div class="code-block">
+    <span class="code-label">sim.py : 64-65</span>
+print(<span class="str">f"waiting {GAZEBO_STARTUP_DELAY}s for gazebo and nav2 to start..."</span>)
+time.sleep(<span class="var">GAZEBO_STARTUP_DELAY</span>)  <span class="cm"># 15 seconds</span>
+  </div>
+  <p>Gazebo + Nav2 needs time to initialize: loading the world, spawning the robot, starting sensor plugins, building costmaps. 15 seconds is a rough estimate. After the wait, we check <code>gz_proc.poll()</code> — if it returns <code class="plain">None</code>, Gazebo is still alive. If it returns a number, it already crashed.</p>
+
+  <h3>Node Launch Order</h3>
+  <p>The three experiment nodes launch in a specific order with 1-second gaps:</p>
+
+  <div class="flow-steps">
+    <div class="flow-step cyan">
+      <div class="step-title"><span class="step-num cyan">1</span> location_awareness</div>
+      <p>Starts publishing zone data. Must be running before the state manager needs it.</p>
+    </div>
+    <div class="flow-step orange">
+      <div class="step-title"><span class="step-num orange">2</span> brain_node</div>
+      <p>Starts listening for trial commands. Must be ready before the state manager sends any.</p>
+    </div>
+    <div class="flow-step green">
+      <div class="step-title"><span class="step-num green">3</span> state_manager</div>
+      <p>The conductor. Launches last because it depends on the other two being ready.</p>
     </div>
   </div>
+
+  <h3>The Shutdown Sequence</h3>
+  <p>When you press <strong>Ctrl+C</strong>, Python catches <code>KeyboardInterrupt</code>. The <code class="plain">finally</code> block kills everything in <strong>reverse order</strong>:</p>
+
+  <div class="code-block">
+    <span class="code-label">sim.py : 96-111</span>
+<span class="kw">finally</span>:
+    <span class="cm"># kill everything in reverse order</span>
+    <span class="kw">for</span> name, proc <span class="kw">in</span> <span class="fn">reversed</span>(processes):
+        <span class="kw">if</span> proc.poll() <span class="kw">is</span> <span class="num">None</span>:
+            proc.<span class="fn">send_signal</span>(signal.SIGINT)  <span class="cm"># like Ctrl+C on each one</span>
+
+    <span class="cm"># give 5 seconds for graceful exit</span>
+    <span class="kw">for</span> name, proc <span class="kw">in</span> processes:
+        <span class="kw">try</span>:
+            proc.<span class="fn">wait</span>(timeout=<span class="num">5</span>)
+        <span class="kw">except</span> subprocess.TimeoutExpired:
+            proc.<span class="fn">kill</span>()  <span class="cm"># hard kill (SIGKILL)</span>
+  </div>
+
+  <p>Reverse order: state_manager first (stop the experiment), then brain, then location, then gazebo. <code>SIGINT</code> is the polite "please stop" signal (same as Ctrl+C). <code>.kill()</code> is the hard "you're dead now" signal — used only if a process ignores SIGINT for 5 seconds.</p>
 </section>
 
-<!-- ========== PART 1: TURTLEBOT ========== -->
-<section id="turtlebot">
-  <div class="reveal">
-    <div class="section-label cyan"><span class="dot"></span> Part 1</div>
-    <h2>Physical TurtleBot4</h2>
-    <p class="section-desc">A real robot navigating a real room using ROS 2, Nav2, and SLAM-generated maps.</p>
-  </div>
 
-  <!-- AUTOMATION V2 FLOW -->
-  <div class="diagram-wrap reveal">
-    <div class="diagram-title">automation2.py &mdash; Smart Launch Sequence</div>
-    <p style="font-size:0.82rem; color:var(--text-dim); margin-bottom:1.5rem;">
-      Each step launches in a new terminal. The next step only starts after a specific log message appears &mdash; no guessing with fixed timers.
-    </p>
+<!-- ============================================================ -->
+<!-- SECTION 2: THE ROOM -->
+<!-- ============================================================ -->
+<div class="section-divider"></div>
+<section id="room" class="content-section">
+  <div class="section-label cyan"><span class="dot"></span>02 — The Room</div>
+  <h2>cuttlebot_world.sdf</h2>
+  <p class="section-desc">The physical space the robot lives in. Defined in SDF (Simulation Description Format) — XML that tells Gazebo what to render.</p>
 
-    <div class="flow-horizontal">
-      <div class="flow-step cyan">
-        <div class="step-num cyan">01</div>
-        <h4>Localization</h4>
-        <p>Loads saved map, runs AMCL particle-filter localization</p>
-      </div>
-      <div class="flow-arrow"><svg viewBox="0 0 32 20"><path d="M2 10h24M22 4l6 6-6 6" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="flow-step cyan">
-        <div class="step-num cyan">02</div>
-        <h4>Nav2</h4>
-        <p>Path planner, controller server, costmap layers</p>
-      </div>
-      <div class="flow-arrow"><svg viewBox="0 0 32 20"><path d="M2 10h24M22 4l6 6-6 6" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="flow-step cyan">
-        <div class="step-num cyan">03</div>
-        <h4>RViz</h4>
-        <p>Graphical map viewer &amp; navigation GUI</p>
-      </div>
-      <div class="flow-arrow"><svg viewBox="0 0 32 20"><path d="M2 10h24M22 4l6 6-6 6" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="flow-step cyan">
-        <div class="step-num cyan">04</div>
-        <h4>Mail Delivery</h4>
-        <p>Your custom navigation script runs last</p>
-      </div>
-    </div>
+  <div class="diagram-wrap">
+    <div class="diagram-title">Room Layout — 8m x 6m, origin at center</div>
+    <svg viewBox="-55 -42 110 84" class="room-svg" style="width:100%;max-width:700px;margin:0 auto;display:block;">
+      <!-- ground -->
+      <rect x="-42" y="-32" width="84" height="64" class="ground" rx="1"/>
 
-    <p style="font-size:0.75rem; color:var(--text-muted); margin-top:1.25rem;">Each arrow = "wait until I see this message in the log before proceeding"</p>
+      <!-- walls -->
+      <rect x="-42" y="-32" width="84" height="1.5" class="wall"/>  <!-- north -->
+      <rect x="-42" y="30.5" width="84" height="1.5" class="wall"/> <!-- south -->
+      <rect x="-42" y="-32" width="1.5" height="64" class="wall"/>  <!-- west -->
+      <rect x="40.5" y="-32" width="1.5" height="64" class="wall"/> <!-- east -->
 
-    <div style="margin-top:1.25rem;">
-      <div class="pattern-card">
-        <div class="p-icon">1</div>
-        <div class="p-content">
-          <div class="p-name">Localization Ready</div>
-          <div class="p-regex">Please set the initial pose</div>
-          <div class="p-desc">AMCL is loaded and waiting for you to tell it where the robot is</div>
-        </div>
-      </div>
-      <div class="pattern-card">
-        <div class="p-icon">2</div>
-        <div class="p-content">
-          <div class="p-name">Nav2 Ready</div>
-          <div class="p-regex">lookupTransform argument</div>
-          <div class="p-desc">Navigation stack started but still waiting for a pose estimate</div>
-        </div>
-      </div>
-      <div class="pattern-card">
-        <div class="p-icon">3</div>
-        <div class="p-content">
-          <div class="p-name">RViz Ready</div>
-          <div class="p-regex">Trying to create a map</div>
-          <div class="p-desc">Visualization window loaded and rendering the map</div>
-        </div>
-      </div>
-    </div>
-  </div>
+      <!-- wall labels -->
+      <text x="0" y="-33.5" class="wall-label">NORTH WALL (y = 3.075)</text>
+      <text x="0" y="34.5" class="wall-label">SOUTH WALL (y = -3.075)</text>
+      <text x="-45.5" y="0" class="wall-label" transform="rotate(-90 -45.5 0)">WEST (x = -4.075)</text>
+      <text x="45.5" y="0" class="wall-label" transform="rotate(90 45.5 0)">EAST (x = 4.075)</text>
 
-  <!-- NAV TO POSE FLOW -->
-  <div class="diagram-wrap reveal">
-    <div class="diagram-title">nav_to_pose.py &mdash; Navigation Flow</div>
+      <!-- divider wall -->
+      <rect x="-40.5" y="-1" width="34" height="1" class="divider"/>  <!-- left segment -->
+      <rect x="6.5" y="-1" width="34" height="1" class="divider"/>   <!-- right segment -->
 
-    <div class="flow-horizontal">
-      <div class="flow-step cyan">
-        <div class="step-num cyan">01</div>
-        <h4>Dock</h4>
-        <p>If not already docked, dock the robot first</p>
-      </div>
-      <div class="flow-arrow"><svg viewBox="0 0 32 20"><path d="M2 10h24M22 4l6 6-6 6" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="flow-step cyan">
-        <div class="step-num cyan">02</div>
-        <h4>Set Pose</h4>
-        <p>Tell AMCL: "I'm at [-0.52, -0.56] facing South"</p>
-      </div>
-      <div class="flow-arrow"><svg viewBox="0 0 32 20"><path d="M2 10h24M22 4l6 6-6 6" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="flow-step cyan">
-        <div class="step-num cyan">03</div>
-        <h4>Wait Nav2</h4>
-        <p>Block until the full navigation stack is online</p>
-      </div>
-      <div class="flow-arrow"><svg viewBox="0 0 32 20"><path d="M2 10h24M22 4l6 6-6 6" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="flow-step cyan">
-        <div class="step-num cyan">04</div>
-        <h4>Undock &amp; Go</h4>
-        <p>Leave dock, navigate to goal at [-2.05, -1.55]</p>
-      </div>
-    </div>
-  </div>
+      <!-- gap annotation -->
+      <line x1="-6.5" y1="2.5" x2="6.5" y2="2.5" stroke="var(--green)" stroke-width="0.3"/>
+      <line x1="-6.5" y1="1.5" x2="-6.5" y2="3.5" stroke="var(--green)" stroke-width="0.2"/>
+      <line x1="6.5" y1="1.5" x2="6.5" y2="3.5" stroke="var(--green)" stroke-width="0.2"/>
+      <text x="0" y="5" class="gap-label">1.2m gap</text>
 
-  <!-- MAP + LED NODE -->
-  <div class="two-col reveal">
-    <div class="info-card">
-      <h4><span class="file-badge">.pgm + .yaml</span> Map Files</h4>
-      <p>Occupancy grid maps created by driving the robot around with SLAM. Each pixel = 5cm of real space.</p>
-      <div class="map-grid" style="margin-top:1rem;">
-        <div class="map-swatch">
-          <div class="swatch-color white"></div>
-          <h5>White</h5>
-          <p>Free space</p>
-        </div>
-        <div class="map-swatch">
-          <div class="swatch-color black"></div>
-          <h5>Black</h5>
-          <p>Wall / obstacle</p>
-        </div>
-        <div class="map-swatch">
-          <div class="swatch-color gray"></div>
-          <h5>Gray</h5>
-          <p>Unknown</p>
-        </div>
-      </div>
-    </div>
-    <div class="info-card">
-      <h4><span class="file-badge">turtlebot4_first_python_node.py</span></h4>
-      <p>A demo ROS 2 node &mdash; press Button 1 on the robot's Create 3 base to toggle the LED light ring through 6 colors.</p>
-      <ul>
-        <li>Subscribes to <code style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--cyan);">/interface_buttons</code></li>
-        <li>Publishes to <code style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--cyan);">/cmd_lightring</code></li>
-        <li>6 LEDs: red, blue, green, yellow, magenta, cyan</li>
-        <li>Toggle on/off with each press</li>
-      </ul>
-    </div>
-  </div>
+      <!-- chamber markers -->
+      <rect x="-30" y="-28" width="10" height="10" class="marker-blue" rx="0.5"/>
+      <rect x="20" y="-28" width="10" height="10" class="marker-red" rx="0.5"/>
 
-  <!-- V1 vs V2 -->
-  <div class="two-col reveal">
-    <div class="info-card">
-      <h4><span class="file-badge">automation.py</span> v1 &mdash; Simple</h4>
-      <p>Opens 4 terminals with a fixed <strong>10-second delay</strong> between each. Simple but fragile &mdash; if a step takes longer than 10s, the next step starts too early.</p>
-    </div>
-    <div class="info-card">
-      <h4><span class="file-badge">automation2.py</span> v2 &mdash; Smart</h4>
-      <p>Watches each terminal's <strong>log output in real-time</strong> for a specific regex pattern, then launches the next step. Robust &mdash; adapts to however long each step actually takes.</p>
-    </div>
-  </div>
-</section>
+      <!-- zone boundaries (dashed) -->
+      <line x1="-40.5" y1="5" x2="40.5" y2="5" class="zone-boundary"/>
+      <line x1="-10" y1="-31" x2="-10" y2="5" class="zone-boundary"/>
+      <line x1="10" y1="-31" x2="10" y2="5" class="zone-boundary"/>
 
-<!-- ========== PART 2: CUTTLEFISH ========== -->
-<section id="cuttlefish">
-  <div class="reveal">
-    <div class="section-label orange"><span class="dot"></span> Part 2</div>
-    <h2>Cuttlefish Brain Simulation</h2>
-    <p class="section-desc">A computational model of cuttlefish decision-making, inspired by the paper <em>Xing, Zou &amp; Krichmar (2021)</em> on neuromodulated patience. Simulated in Webots.</p>
-  </div>
+      <!-- zone labels -->
+      <text x="-25" y="-10" class="zone-label" style="fill:var(--blue)">LEFT CHAMBER</text>
+      <text x="-25" y="-6" class="coord-label">(-2.5, 1.5)</text>
+      <text x="25" y="-10" class="zone-label" style="fill:var(--red)">RIGHT CHAMBER</text>
+      <text x="25" y="-6" class="coord-label">(2.5, 1.5)</text>
+      <text x="0" y="18" class="zone-label" style="fill:var(--cyan)">CENTER</text>
+      <text x="0" y="22" class="coord-label">(0, -1.5)</text>
 
-  <!-- THE EXPERIMENT -->
-  <div class="diagram-wrap reveal">
-    <div class="diagram-title">The Two-Chamber Experiment</div>
-    <p style="font-size:0.82rem; color:var(--text-dim); margin-bottom:1.5rem;">
-      A cuttlefish (or simulated e-puck robot) faces a choice: go left for a small instant reward, or go right and wait for a much bigger one.
-    </p>
+      <!-- marker labels -->
+      <text x="-25" y="-20" class="coord-label" style="fill:var(--blue)">blue marker</text>
+      <text x="25" y="-20" class="coord-label" style="fill:var(--red)">red marker</text>
 
-    <div class="chamber-diagram">
-      <div class="chamber chamber-left">
-        <div class="ch-label">Left &mdash; Blue</div>
-        <div class="ch-icon">&#129424;</div>
-        <div class="ch-title">Dead Shrimp</div>
-        <div class="ch-detail">Available immediately</div>
-        <div class="ch-reward">reward = 1.0</div>
-      </div>
-      <div class="chamber chamber-right">
-        <div class="ch-label">Right &mdash; Red</div>
-        <div class="ch-icon">&#129424;</div>
-        <div class="ch-title">Live Shrimp</div>
-        <div class="ch-detail">Must wait 10&ndash;60 seconds</div>
-        <div class="ch-reward">reward = 4.0</div>
-      </div>
-      <div class="threshold-line left"></div>
-      <div class="threshold-line right"></div>
-      <div class="threshold-label left">threshold</div>
-      <div class="threshold-label right">threshold</div>
-      <div class="funnel-line left-wall"></div>
-      <div class="funnel-line right-wall"></div>
-      <div class="chamber-robot">
-        <div class="robot-icon">&#129302;</div>
-        <div class="robot-label">e-puck robot</div>
-      </div>
-    </div>
-  </div>
+      <!-- robot at center -->
+      <circle cx="0" cy="16" r="1.2" class="robot">
+        <animate attributeName="r" values="1.2;1.6;1.2" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text x="0" y="14" class="coord-label" style="fill:var(--cyan)">robot start</text>
 
-  <!-- 4 MECHANISMS -->
-  <div class="reveal">
-    <h3 style="font-size:1.15rem; margin-bottom:0.3rem;">How the brain works</h3>
-    <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:1rem;">Four interlocking mechanisms from <span class="file-badge" style="font-family:'DM Mono',monospace;font-size:0.68rem;padding:0.15rem 0.5rem;border-radius:4px;background:var(--orange-glow);color:var(--orange);border:1px solid var(--orange-dim);">cuttlefish_model.py</span></p>
+      <!-- nav paths -->
+      <path d="M 0 16 L 0 0 L -25 0 L -25 -8" class="nav-path"/>
+      <path d="M 0 16 L 0 0 L 25 0 L 25 -8" class="nav-path"/>
 
-    <div class="mech-grid">
-      <div class="mech-card">
-        <div class="mech-num">MECHANISM 01</div>
-        <h4>Episodic Memory</h4>
-        <p>A 3D array <code>[what &times; when &times; where]</code> that stores learned values. Updated using a <strong>delta rule</strong>: <code>V += lr &times; (reward - V)</code>. The robot remembers what worked and where.</p>
-      </div>
-      <div class="mech-card">
-        <div class="mech-num">MECHANISM 02</div>
-        <h4>Softmax Choice</h4>
-        <p>Boltzmann action selection &mdash; converts memory values into probabilities. Higher-valued options are chosen more often, but there's always a chance of exploring the other option.</p>
-      </div>
-      <div class="mech-card">
-        <div class="mech-num">MECHANISM 03</div>
-        <h4>Patience Model</h4>
-        <p>A sigmoid function modulated by a "serotonin-like" signal. Low hunger = patient (willing to wait). High hunger = impulsive (takes the quick option). Controlled by <code>BETA = 8.0</code>.</p>
-      </div>
-      <div class="mech-card">
-        <div class="mech-num">MECHANISM 04</div>
-        <h4>Hunger Dynamics</h4>
-        <p>Hunger rises each trial without food (<code>+0.05</code>), drops when eating (<code>-0.2</code>). Creates a feedback loop: starving &rarr; impulsive &rarr; takes dead shrimp &rarr; partially fed &rarr; slightly more patient.</p>
-      </div>
-    </div>
-  </div>
+      <!-- dimension line bottom -->
+      <line x1="-40.5" y1="35" x2="40.5" y2="35" class="dim-line"/>
+      <text x="0" y="37.5" class="coord-label">8m</text>
 
-  <!-- FEEDBACK LOOP -->
-  <div class="diagram-wrap reveal">
-    <div class="diagram-title">Hunger &harr; Patience Feedback Loop</div>
-
-    <svg viewBox="0 0 700 280" width="100%" style="max-width:700px; display:block; margin:0 auto;">
-      <!-- Nodes -->
-      <rect x="260" y="10" width="180" height="56" rx="12" fill="#181a24" stroke="#363a50"/>
-      <text x="350" y="44" text-anchor="middle" fill="#e4e6f0" font-size="14" font-weight="600">Hunger Level</text>
-
-      <rect x="500" y="112" width="180" height="56" rx="12" fill="#181a24" stroke="#ff7849" stroke-opacity="0.4"/>
-      <text x="590" y="136" text-anchor="middle" fill="#ff7849" font-size="13" font-weight="600">Patience</text>
-      <text x="590" y="154" text-anchor="middle" fill="#8b8fa6" font-size="11">sigmoid(serotonin)</text>
-
-      <rect x="260" y="210" width="180" height="56" rx="12" fill="#181a24" stroke="#363a50"/>
-      <text x="350" y="236" text-anchor="middle" fill="#e4e6f0" font-size="13" font-weight="600">Choice</text>
-      <text x="350" y="254" text-anchor="middle" fill="#8b8fa6" font-size="11">immediate vs delayed</text>
-
-      <rect x="20" y="112" width="180" height="56" rx="12" fill="#181a24" stroke="#3ddc84" stroke-opacity="0.4"/>
-      <text x="110" y="136" text-anchor="middle" fill="#3ddc84" font-size="13" font-weight="600">Reward</text>
-      <text x="110" y="154" text-anchor="middle" fill="#8b8fa6" font-size="11">food eaten (or not)</text>
-
-      <!-- Arrows -->
-      <defs>
-        <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#5c6080"/></marker>
-      </defs>
-      <!-- Hunger → Patience -->
-      <path d="M440 38 Q520 38 530 112" fill="none" stroke="#5c6080" stroke-width="1.5" marker-end="url(#ah)"/>
-      <text x="500" y="70" fill="#5c6080" font-size="10" class="mono">high hunger → low patience</text>
-
-      <!-- Patience → Choice -->
-      <path d="M560 168 Q530 210 440 238" fill="none" stroke="#5c6080" stroke-width="1.5" marker-end="url(#ah)"/>
-      <text x="510" y="205" fill="#5c6080" font-size="10" class="mono">affects willingness to wait</text>
-
-      <!-- Choice → Reward -->
-      <path d="M260 238 Q180 238 160 168" fill="none" stroke="#5c6080" stroke-width="1.5" marker-end="url(#ah)"/>
-      <text x="170" y="220" fill="#5c6080" font-size="10" class="mono">delayed → big reward</text>
-
-      <!-- Reward → Hunger -->
-      <path d="M140 112 Q160 60 260 38" fill="none" stroke="#5c6080" stroke-width="1.5" marker-end="url(#ah)"/>
-      <text x="145" y="60" fill="#5c6080" font-size="10" class="mono">eating → hunger drops</text>
+      <!-- dimension line right -->
+      <line x1="44" y1="-30.5" x2="44" y2="30.5" class="dim-line"/>
+      <text x="47" y="0" class="coord-label">6m</text>
     </svg>
   </div>
 
-  <!-- STATE MACHINE -->
-  <div class="diagram-wrap reveal">
-    <div class="diagram-title">brain.py &mdash; Robot State Machine</div>
-    <p style="font-size:0.82rem; color:var(--text-dim); margin-bottom:1.5rem;">
-      The e-puck robot in Webots follows this state machine each trial. It uses its camera to detect chamber colors and GPS to know when it crosses thresholds.
-    </p>
+  <p>Dashed lines show the zone boundaries that <code>location_awareness.py</code> uses. The dashed cyan paths show the routes the robot takes to reach each chamber — through the gap in the divider.</p>
 
-    <div class="state-machine">
-      <div class="state-node active-state">idle</div>
-      <span class="state-arrow">&#8594;</span>
-      <div class="state-node" style="border-color:var(--yellow); color:var(--yellow);">choose</div>
-      <span class="state-arrow">&#8594;</span>
-      <div class="state-node blue-state">turn</div>
-      <span class="state-arrow">&#8594;</span>
-      <div class="state-node blue-state">approach</div>
-      <span class="state-arrow">&#8594;</span>
-      <div class="state-node red-state" title="Only if red chamber was chosen">wait?</div>
-      <span class="state-arrow">&#8594;</span>
-      <div class="state-node green-state">done</div>
+  <h3>The Walls</h3>
+  <p>Four box models, <strong>0.15m thick</strong>, <strong>2.5m tall</strong>. Each wall has both a <code class="plain">&lt;collision&gt;</code> (physics — things bounce off it) and a <code class="plain">&lt;visual&gt;</code> (what you see). The pose <code class="plain">0 3.075 1.25 0 0 0</code> means: x=0, y=3.075, z=1.25 (halfway up the 2.5m wall), with no rotation.</p>
+
+  <h3>The Divider Wall</h3>
+  <p>Two segments at <strong>y=0</strong> that split the room in half. The left segment is centered at <strong>x=-2.3</strong> (3.4m wide), the right at <strong>x=2.3</strong> (also 3.4m wide). Between them is a <strong>1.2m gap</strong> from about x=-0.6 to x=0.6. This gap is the doorway — the only way the robot can get from the south half (center) to the north half (chambers).</p>
+
+  <h3>Chamber Markers</h3>
+  <p>Two flat colored squares on the ground — only <strong>0.02m tall</strong> (basically painted on the floor). Blue at (-2.5, 2.5) for the left chamber, red at (2.5, 2.5) for the right. They have <code class="plain">&lt;visual&gt;</code> only, no <code class="plain">&lt;collision&gt;</code> — the robot drives right over them. They're just visual cues so you can see where the chambers are in Gazebo.</p>
+
+  <details class="expandable">
+    <summary>Physics Engine &amp; Plugins</summary>
+    <div class="expand-content">
+      <p>The <strong>physics engine</strong> is ODE (Open Dynamics Engine) with a 3ms step size — every 3 milliseconds, the engine recalculates all positions and forces. <code class="plain">real_time_factor=1.0</code> means 1 second of sim = 1 second of real time.</p>
+      <p>The 4 <strong>plugins</strong>: <code class="plain">Physics</code> (runs the physics engine), <code class="plain">UserCommands</code> (lets you spawn/delete things at runtime), <code class="plain">SceneBroadcaster</code> (sends scene data to GUIs), <code class="plain">Contact</code> (detects when things touch).</p>
     </div>
+  </details>
+</section>
 
-    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-top:1.5rem;">
-      <div style="font-size:0.75rem; color:var(--text-dim); padding:0.8rem; background:var(--bg-card); border-radius:8px; border:1px solid var(--border);">
-        <strong style="color:var(--orange);">idle</strong> &mdash; 3-second pause. Pre-trial period before the robot "perceives" both chambers.
-      </div>
-      <div style="font-size:0.75rem; color:var(--text-dim); padding:0.8rem; background:var(--bg-card); border-radius:8px; border:1px solid var(--border);">
-        <strong style="color:var(--yellow);">choose</strong> &mdash; Softmax over episodic memory values. Picks blue (immediate) or red (delayed).
-      </div>
-      <div style="font-size:0.75rem; color:var(--text-dim); padding:0.8rem; background:var(--bg-card); border-radius:8px; border:1px solid var(--border);">
-        <strong style="color:var(--blue);">turn → approach</strong> &mdash; Uses camera color detection to steer toward chosen chamber, then drives forward until GPS says it crossed the threshold line.
-      </div>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: LOCATION AWARENESS -->
+<!-- ============================================================ -->
+<div class="section-divider"></div>
+<section id="location" class="content-section">
+  <div class="section-label cyan"><span class="dot"></span>03 — Location Awareness</div>
+  <h2>location_awareness.py</h2>
+  <p class="section-desc">Tracks where the robot is and publishes which zone it's in. The eyes of the experiment.</p>
+
+  <h3>How ROS 2 Nodes Work</h3>
+  <p>A ROS 2 <strong>node</strong> is a program that communicates with other programs through <strong>topics</strong>. A topic is a named channel — like a radio station. One node <strong>publishes</strong> messages to a topic, other nodes <strong>subscribe</strong> and receive them.</p>
+  <p>Messages arrive through <strong>callbacks</strong> — functions that get called automatically when a new message arrives. <code>rclpy.spin(node)</code> is the event loop that sits forever, waiting for messages or timers to fire, and calls the appropriate callbacks. Nothing happens in a node unless spin is running.</p>
+
+  <div class="info-card">
+    <div class="card-label cyan">this node's connections</div>
+    <p><strong>Subscribes to:</strong> <code>/amcl_pose</code> (map position) and <code>/odom</code> (wheel odometry)<br>
+    <strong>Publishes to:</strong> <code>/carl/zone</code> (which zone the robot is in)</p>
+  </div>
+
+  <h3>AMCL vs Odometry</h3>
+  <p><strong>AMCL</strong> (Adaptive Monte Carlo Localization) uses the lidar + the map to figure out where the robot is. It scatters thousands of "particles" across the map, each guessing "maybe the robot is here", then compares what the lidar sees vs what each particle would see. Particles that match well survive, bad guesses die. Over time, the particles converge on the robot's true position. This is accurate but requires a map.</p>
+  <p><strong>Odometry</strong> counts wheel rotations to estimate how far the robot has moved. Left wheel turned 100 times, right wheel turned 102 times → we went roughly forward and slightly right. It's always available but <strong>drifts over time</strong> — small errors accumulate, and after a few minutes the estimate can be meters off.</p>
+
+  <div class="code-block">
+    <span class="code-label">location_awareness.py : 57-64</span>
+<span class="kw">def</span> <span class="fn">odom_callback</span>(self, msg):
+    <span class="cm"># use odometry if amcl data doesnt exist</span>
+    <span class="kw">if</span> self.source == <span class="str">'amcl'</span>:
+        <span class="kw">return</span>                       <span class="cm"># ignore odom when AMCL is available</span>
+    self.x = msg.pose.pose.position.x
+    self.y = msg.pose.pose.position.y
+    self.yaw = self.<span class="fn">quaternion_to_yaw</span>(msg.pose.pose.orientation)
+    self.source = <span class="str">'odom'</span>
+    self.<span class="fn">_publish_zone</span>()
+  </div>
+
+  <p>AMCL is preferred because it's absolute (tied to the map). If AMCL has published at least once, <code class="plain">self.source</code> gets set to <code class="plain">'amcl'</code> and odom callbacks are ignored via the early return.</p>
+
+  <h3>Quaternion to Yaw</h3>
+  <p>Rotations in 3D are represented as <strong>quaternions</strong> — four numbers (x, y, z, w) that encode a rotation. For a robot on a flat floor, we only care about <strong>yaw</strong> — which direction it's facing, like a compass.</p>
+
+  <div class="code-block">
+    <span class="code-label">location_awareness.py : 92-95</span>
+<span class="kw">def</span> <span class="fn">quaternion_to_yaw</span>(self, q):
+    siny_cosp = <span class="num">2.0</span> * (q.w * q.z + q.x * q.y)
+    cosy_cosp = <span class="num">1.0</span> - <span class="num">2.0</span> * (q.y * q.y + q.z * q.z)
+    <span class="kw">return</span> math.<span class="fn">atan2</span>(siny_cosp, cosy_cosp)
+  </div>
+
+  <p><code>atan2</code> converts (y, x) components into an angle in radians. The formulas above extract the yaw component from the quaternion. If the robot faces north (positive y), yaw = ~1.57 rad (90 degrees). Facing east, yaw = 0. Facing south, yaw = -1.57.</p>
+
+  <h3>Zone Detection</h3>
+  <p>The room is divided into four zones based on coordinates:</p>
+
+  <div class="code-block">
+    <span class="code-label">location_awareness.py : 67-78</span>
+<span class="kw">def</span> <span class="fn">_compute_zone</span>(self):
+    <span class="kw">if</span> self.y &lt; <span class="num">0.5</span>:                           <span class="cm"># south half</span>
+        <span class="kw">return</span> <span class="str">'CENTER'</span>
+    <span class="kw">elif</span> self.x &lt; <span class="num">-1.0</span> <span class="kw">and</span> self.y &gt; <span class="num">0.5</span>:    <span class="cm"># far left, past divider</span>
+        <span class="kw">return</span> <span class="str">'LEFT_CHAMBER'</span>
+    <span class="kw">elif</span> self.x &gt; <span class="num">1.0</span> <span class="kw">and</span> self.y &gt; <span class="num">0.5</span>:     <span class="cm"># far right, past divider</span>
+        <span class="kw">return</span> <span class="str">'RIGHT_CHAMBER'</span>
+    <span class="kw">else</span>:                                     <span class="cm"># near the gap</span>
+        <span class="kw">return</span> <span class="str">'DIVIDER'</span>
+  </div>
+
+  <p>The boundary at <strong>y=0.5</strong> separates the south half (center area) from the north half (chambers). The boundaries at <strong>x=-1.0</strong> and <strong>x=1.0</strong> separate left chamber from right chamber. Anything in the north half between those x values is the DIVIDER zone (near the gap).</p>
+
+  <h3>Publishing the Zone</h3>
+  <div class="code-block">
+    <span class="code-label">location_awareness.py : 80-89</span>
+<span class="kw">def</span> <span class="fn">_publish_zone</span>(self):
+    zone = self.<span class="fn">_compute_zone</span>()
+    <span class="kw">if</span> zone != self.current_zone:              <span class="cm"># only log when zone changes</span>
+        self.current_zone = zone
+        self.get_logger().info(<span class="str">f'Zone changed: {zone}'</span>)
+    msg = String()
+    msg.data = json.<span class="fn">dumps</span>({<span class="str">'zone'</span>: zone})     <span class="cm"># e.g. {"zone": "CENTER"}</span>
+    self.zone_pub.<span class="fn">publish</span>(msg)
+  </div>
+
+  <p>Called on every odom update (~20-50 times/sec). Publishes a JSON string to <code>/carl/zone</code>. The state manager subscribes to this to know where the robot is.</p>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 4: Q-LEARNING MATH -->
+<!-- ============================================================ -->
+<div class="section-divider"></div>
+<section id="qlearning" class="content-section">
+  <div class="section-label orange"><span class="dot"></span>04 — The Q-Learning Math</div>
+  <h2>delayed_gratification.py</h2>
+  <p class="section-desc">The mathematical brain of the experiment. No ROS, no robot — pure math that decides what the cuttlefish would do.</p>
+
+  <h3>The Q-Table</h3>
+  <p>A <strong>4 x 2 grid of numbers</strong>. 4 states (rows), 2 actions per state (LEFT, RIGHT). Each number is a Q-value — the agent's estimate of "how good is this action in this state?" Starts at all zeros.</p>
+
+  <div class="qtable-wrap">
+    <table class="qtable">
+      <thead>
+        <tr>
+          <th>State</th>
+          <th>Description</th>
+          <th>Q(LEFT)</th>
+          <th>Q(RIGHT)</th>
+          <th>Correct</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="state-name">EXPM_LR</td>
+          <td class="state-desc">live shrimp LEFT, dead shrimp RIGHT</td>
+          <td class="val-zero">0.00</td>
+          <td class="val-zero">0.00</td>
+          <td><span class="correct-marker">LEFT</span></td>
+        </tr>
+        <tr>
+          <td class="state-name">EXPM_RL</td>
+          <td class="state-desc">dead shrimp LEFT, live shrimp RIGHT</td>
+          <td class="val-zero">0.00</td>
+          <td class="val-zero">0.00</td>
+          <td><span class="correct-marker">RIGHT</span></td>
+        </tr>
+        <tr>
+          <td class="state-name">CTRL_LR</td>
+          <td class="state-desc">unobtainable LEFT, dead shrimp RIGHT</td>
+          <td class="val-zero">0.00</td>
+          <td class="val-zero">0.00</td>
+          <td><span class="correct-marker">RIGHT</span></td>
+        </tr>
+        <tr>
+          <td class="state-name">CTRL_RL</td>
+          <td class="state-desc">dead shrimp LEFT, unobtainable RIGHT</td>
+          <td class="val-zero">0.00</td>
+          <td class="val-zero">0.00</td>
+          <td><span class="correct-marker">LEFT</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The <strong>EXPM</strong> states are experimental — they test delayed gratification (live vs dead). The <strong>CTRL</strong> states are control — they test basic discrimination (dead vs unobtainable). In each trial, one of these states is randomly selected (25% chance each).</p>
+
+  <h3>Rewards</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+    <div class="info-card">
+      <div class="card-label green">live shrimp</div>
+      <p style="font-size:1.5rem;font-weight:600;color:var(--green);font-family:'DM Mono',monospace;">5.0</p>
+    </div>
+    <div class="info-card">
+      <div class="card-label orange">dead shrimp</div>
+      <p style="font-size:1.5rem;font-weight:600;color:var(--orange);font-family:'DM Mono',monospace;">1.0</p>
+    </div>
+    <div class="info-card">
+      <div class="card-label" style="color:var(--text-muted);">unobtainable</div>
+      <p style="font-size:1.5rem;font-weight:600;color:var(--text-muted);font-family:'DM Mono',monospace;">0.0</p>
     </div>
   </div>
 
-  <!-- WEBOTS WORLD -->
-  <div class="reveal">
-    <div class="info-card" style="margin-bottom:2rem;">
-      <h4><span class="file-badge orange">.wbt</span> Webots World</h4>
-      <p>A 3&times;4.5m arena with a green checkerboard floor, two semi-transparent chambers (blue left, red right), colored threshold lines on the floor, angled funnel walls, and an e-puck robot equipped with a camera and GPS. A separate supervisor robot handles simulation control.</p>
+  <h3>The Q-Update Rule</h3>
+  <p>After every trial, the Q-value for the chosen (state, action) pair gets updated:</p>
+
+  <div class="math-block">
+    <div class="math-label">Q-Update Equation</div>
+    Q(state, action) = Q<sub>old</sub> + <span class="hl">α</span> × (reward − Q<sub>old</sub>)<br>
+    <span class="dim">where α = 0.10 (learning rate)</span>
+  </div>
+
+  <p>This nudges the Q-value <strong>toward the actual reward</strong> by 10% each time. Let's trace an example for state EXPM_LR, action LEFT (reward = 5.0):</p>
+
+  <div class="math-block">
+    <div class="math-label">Worked Example — Learning Live Shrimp Value</div>
+    <span class="dim">Trial 1:</span> Q = 0.00 + 0.10 × (5.0 − 0.00) = <span class="hl">0.50</span><br>
+    <span class="dim">Trial 2:</span> Q = 0.50 + 0.10 × (5.0 − 0.50) = <span class="hl">0.95</span><br>
+    <span class="dim">Trial 3:</span> Q = 0.95 + 0.10 × (5.0 − 0.95) = <span class="hl">1.355</span><br>
+    <span class="dim">Trial 4:</span> Q = 1.355 + 0.10 × (5.0 − 1.355) = <span class="hl">1.72</span><br>
+    <span class="dim">...</span><br>
+    <span class="dim">Trial 20:</span> Q ≈ <span class="hl">4.32</span> <span class="dim">(slowly approaching 5.0)</span><br>
+  </div>
+
+  <p>With α=0.10, the Q-value approaches the true reward exponentially — fast at first, then slowing down. It never quite reaches 5.0 because each step only closes 10% of the remaining gap.</p>
+
+  <h3>Softmax Action Selection</h3>
+  <p>The agent doesn't always pick the highest Q-value — it uses a <strong>probability distribution</strong>. Higher Q-values are more likely to be chosen, but there's always some randomness.</p>
+
+  <div class="code-block">
+    <span class="code-label">delayed_gratification.py : 84-107</span>
+<span class="kw">def</span> <span class="fn">action_select</span>(q, beta):
+    <span class="cm"># sum of e^(β × Q) for all actions</span>
+    sum_softmax = <span class="fn">sum</span>(<span class="fn">exp</span>(beta * q[i]) <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(q)))
+
+    r = random.<span class="fn">random</span>()              <span class="cm"># random number 0 to 1</span>
+    cumulative = <span class="num">0.0</span>
+
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(q)):
+        cumulative += <span class="fn">exp</span>(beta * q[i]) / sum_softmax
+        <span class="kw">if</span> cumulative >= r:
+            <span class="kw">return</span> i                 <span class="cm"># pick this action</span>
+
+    <span class="kw">return</span> <span class="fn">len</span>(q) - <span class="num">1</span>              <span class="cm"># fallback (shouldn't happen)</span>
+  </div>
+
+  <div class="math-block">
+    <div class="math-label">Worked Example — Softmax with β=1.0</div>
+    <span class="dim">Say Q-values are:</span> q = [<span class="hl">4.3</span>, <span class="hl-cyan">0.85</span>] <span class="dim">(EXPM_LR after training)</span><br><br>
+    <span class="dim">Step 1: Exponentiate</span><br>
+    e^(1.0 × 4.3) = <span class="hl">73.7</span><br>
+    e^(1.0 × 0.85) = <span class="hl-cyan">2.34</span><br><br>
+    <span class="dim">Step 2: Sum</span><br>
+    73.7 + 2.34 = <span class="hl">76.04</span><br><br>
+    <span class="dim">Step 3: Probabilities</span><br>
+    P(LEFT)  = 73.7 / 76.04 = <span class="hl-green">96.9%</span><br>
+    P(RIGHT) = 2.34 / 76.04 = <span class="dim">3.1%</span><br><br>
+    <span class="dim">Step 4: Roll random number. If r &lt; 0.969 → LEFT, else → RIGHT</span>
+  </div>
+
+  <p>The <strong>β (beta) parameter</strong> controls greediness. β=0 means completely random (50/50). β=∞ means always pick the best. β=1.0 is a moderate setting where the agent usually picks the better option but occasionally explores.</p>
+
+  <h3>The Patience Function — prob_wait()</h3>
+  <p>This converts a delay (in seconds) into a number between 0 and 1 that represents "how patient is the agent?"</p>
+
+  <div class="code-block">
+    <span class="code-label">delayed_gratification.py : 71-82</span>
+<span class="kw">def</span> <span class="fn">prob_wait</span>(tim):
+    mean = <span class="num">70</span>
+    std_dev = <span class="num">20</span>
+    beta_weight = <span class="num">2</span>
+    pw = <span class="num">1</span> / np.<span class="fn">exp</span>(beta_weight * norm.<span class="fn">cdf</span>(tim, loc=mean, scale=std_dev))
+    <span class="kw">return</span> pw
+  </div>
+
+  <p>Two parts to understand:</p>
+  <p><strong>Part 1: <code class="orange">norm.cdf(tim, mean=70, std=20)</code></strong> — this is the cumulative normal distribution. It's an S-shaped curve centered at 70 with spread 20. It takes a time value and returns a number between 0 and 1:</p>
+
+  <div class="math-block">
+    <div class="math-label">norm.cdf values</div>
+    <span class="dim">delay = 10s:</span>  norm.cdf(10, 70, 20)  = <span class="hl">0.0013</span>  <span class="dim">(very small — barely started)</span><br>
+    <span class="dim">delay = 50s:</span>  norm.cdf(50, 70, 20)  = <span class="hl">0.159</span>   <span class="dim">(starting to grow)</span><br>
+    <span class="dim">delay = 70s:</span>  norm.cdf(70, 70, 20)  = <span class="hl">0.500</span>   <span class="dim">(exactly at the mean)</span><br>
+    <span class="dim">delay = 100s:</span> norm.cdf(100, 70, 20) = <span class="hl">0.933</span>   <span class="dim">(almost saturated)</span><br>
+    <span class="dim">delay = 130s:</span> norm.cdf(130, 70, 20) = <span class="hl">0.999</span>   <span class="dim">(basically 1)</span>
+  </div>
+
+  <p><strong>Part 2: <code class="orange">1 / exp(2 × cdf_value)</code></strong> — takes that 0–1 value and converts it to patience:</p>
+
+  <div class="math-block">
+    <div class="math-label">Full prob_wait calculation</div>
+    <span class="dim">delay = 10s:</span>  1/exp(2 × 0.0013) = 1/exp(0.003) = <span class="hl-green">0.997</span> <span class="dim"> almost full patience</span><br>
+    <span class="dim">delay = 50s:</span>  1/exp(2 × 0.159)  = 1/exp(0.318) = <span class="hl-green">0.728</span> <span class="dim"> still pretty patient</span><br>
+    <span class="dim">delay = 70s:</span>  1/exp(2 × 0.500)  = 1/exp(1.0)   = <span class="hl">0.368</span> <span class="dim"> starting to give up</span><br>
+    <span class="dim">delay = 100s:</span> 1/exp(2 × 0.933)  = 1/exp(1.866) = <span class="hl">0.155</span> <span class="dim"> very impatient</span><br>
+    <span class="dim">delay = 130s:</span> 1/exp(2 × 0.999)  = 1/exp(1.997) = <span class="hl">0.136</span> <span class="dim"> almost no patience</span>
+  </div>
+
+  <p>Short delay → patience near 1.0 → Q-values barely discounted → agent picks live shrimp.<br>
+  Long delay → patience near 0 → live shrimp Q-value gets crushed → agent settles for dead shrimp.</p>
+
+  <h3>The Patience Discount</h3>
+  <p>This is the key mechanism. When the agent faces a choice, <code class="orange">p_wait</code> multiplies the Q-value of the <strong>live shrimp option only</strong>:</p>
+
+  <div class="code-block">
+    <span class="code-label">delayed_gratification.py : 133-140</span>
+<span class="cm"># copy q-values so patience discount doesn't change the table</span>
+q = <span class="fn">list</span>(qtable.<span class="fn">get_row</span>(current_state))
+
+<span class="cm"># apply patience discount (live shrimp states only)</span>
+<span class="kw">if</span> current_state == <span class="var">EXPM_LR</span>:
+    q[<span class="var">LEFT</span>] *= p_wait       <span class="cm"># live shrimp is on the LEFT</span>
+<span class="kw">elif</span> current_state == <span class="var">EXPM_RL</span>:
+    q[<span class="var">RIGHT</span>] *= p_wait      <span class="cm"># live shrimp is on the RIGHT</span>
+  </div>
+
+  <div class="math-block">
+    <div class="math-label">Example — delay 70s, EXPM_LR state (live LEFT, dead RIGHT)</div>
+    <span class="dim">Q-table says:</span> Q(LEFT) = <span class="hl">4.3</span>, Q(RIGHT) = <span class="hl-cyan">0.85</span><br>
+    <span class="dim">p_wait at 70s:</span> <span class="hl">0.368</span><br><br>
+    <span class="dim">After discount:</span> Q(LEFT) = 4.3 × 0.368 = <span class="hl">1.58</span>, Q(RIGHT) = <span class="hl-cyan">0.85</span> <span class="dim">(unchanged)</span><br><br>
+    <span class="dim">Now softmax sees:</span> P(LEFT) = e^1.58 / (e^1.58 + e^0.85) = 4.86 / (4.86 + 2.34) = <span class="hl">67.5%</span><br>
+    <span class="dim">Before discount it was 96.9%. Now it's only 67.5% — the agent is wavering.</span>
+  </div>
+
+  <p>Control states (CTRL_LR, CTRL_RL) are <strong>never discounted</strong>. The unobtainable shrimp stays at 0.0 regardless of delay, so patience doesn't affect those choices.</p>
+
+  <h3>Why Copy Q-Values First</h3>
+  <div class="info-card">
+    <div class="card-label orange">bug fix from carl</div>
+    <p>The original CARL code did <code class="plain">q = qTbl</code> (reference, not copy) then <code class="plain">q[LEFT] *= p_wait</code> — this <strong>permanently mutated</strong> the Q-table. Every trial would further reduce the live shrimp Q-value, corrupting the learned values. Our code does <code>q = list(qtable.get_row(...))</code> which makes an independent copy. The discount only affects the decision, not the stored knowledge.</p>
+  </div>
+
+  <h3>After Training — What the Q-Table Looks Like</h3>
+  <p>After 100 training trials (p_wait=1.0, no discount), the table converges to approximately:</p>
+
+  <div class="qtable-wrap">
+    <table class="qtable">
+      <thead>
+        <tr><th>State</th><th>Q(LEFT)</th><th>Q(RIGHT)</th><th>Interpretation</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="state-name">EXPM_LR</td>
+          <td class="val-high">~4.30</td>
+          <td class="val-low">~0.85</td>
+          <td class="state-desc">learned: left (live) is way better</td>
+        </tr>
+        <tr>
+          <td class="state-name">EXPM_RL</td>
+          <td class="val-low">~0.85</td>
+          <td class="val-high">~4.30</td>
+          <td class="state-desc">learned: right (live) is way better</td>
+        </tr>
+        <tr>
+          <td class="state-name">CTRL_LR</td>
+          <td class="val-zero">~0.00</td>
+          <td class="val-low">~0.90</td>
+          <td class="state-desc">learned: right (dead) is better than nothing</td>
+        </tr>
+        <tr>
+          <td class="state-name">CTRL_RL</td>
+          <td class="val-low">~0.90</td>
+          <td class="val-zero">~0.00</td>
+          <td class="state-desc">learned: left (dead) is better than nothing</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Values don't reach exactly 5.0 or 1.0 because: (a) learning is only 10% per step, (b) softmax sometimes picks the wrong action, so both columns get some updates, (c) 100 trials isn't enough to fully converge. But the relative ordering is clear — the agent knows which side is better in every state.</p>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 5: THE BRAIN -->
+<!-- ============================================================ -->
+<div class="section-divider"></div>
+<section id="brain" class="content-section">
+  <div class="section-label orange"><span class="dot"></span>05 — The Brain</div>
+  <h2>brain_node.py</h2>
+  <p class="section-desc">A thin ROS 2 wrapper around the Q-learning library. Receives commands, makes decisions, sends results.</p>
+
+  <h3>What It Holds</h3>
+  <div class="code-block">
+    <span class="code-label">brain_node.py : 27-36</span>
+<span class="kw">class</span> <span class="fn">BrainNode</span>(Node):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        <span class="fn">super</span>().__init__(<span class="str">'brain_node'</span>)
+
+        self.qtable = <span class="fn">QTable</span>()         <span class="cm"># 4x2 grid, all zeros</span>
+        self.trial_count = <span class="num">0</span>
+
+        self.result_pub = self.<span class="fn">create_publisher</span>(String, <span class="str">'/carl/trial_result'</span>, <span class="num">10</span>)
+        self.cmd_sub = self.<span class="fn">create_subscription</span>(
+            String, <span class="str">'/carl/trial_cmd'</span>, self.<span class="fn">trial_callback</span>, <span class="num">10</span>)
+  </div>
+
+  <p>The brain holds one <code class="orange">QTable</code> that persists across all trials — this is where learning accumulates. The <code class="plain">10</code> in the publisher/subscriber is the queue depth — how many messages to buffer before dropping old ones.</p>
+
+  <h3>The Trial Callback</h3>
+  <p>Every time a message arrives on <code>/carl/trial_cmd</code>, this function runs:</p>
+
+  <div class="flow-steps">
+    <div class="flow-step orange">
+      <div class="step-title"><span class="step-num orange">1</span> Parse the JSON command</div>
+      <p><code class="plain">{"p_wait": 0.368}</code> or <code class="plain">{"p_wait": 1.0, "state": 2}</code>. The <code class="orange">p_wait</code> field is required. The <code class="orange">state</code> field is optional — if omitted, <code>run_trial</code> picks a random state.</p>
     </div>
+    <div class="flow-step orange">
+      <div class="step-title"><span class="step-num orange">2</span> Run Q-learning trial</div>
+      <p>Calls <code>run_trial(self.qtable, p_wait, forced_state=...)</code>. This picks a state, copies Q-values, applies patience discount, does softmax selection, determines reward, updates Q-table. Returns <code class="plain">(reward, is_experimental, state, action)</code>.</p>
+    </div>
+    <div class="flow-step orange">
+      <div class="step-title"><span class="step-num orange">3</span> Check correctness</div>
+      <p><code>is_correct(state, action)</code> returns True if the agent picked the higher-reward option. For EXPM_LR that means LEFT, for CTRL_RL that means LEFT, etc.</p>
+    </div>
+    <div class="flow-step orange">
+      <div class="step-title"><span class="step-num orange">4</span> Publish result</div>
+      <p>Sends JSON to <code>/carl/trial_result</code>:</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <span class="code-label">Message format</span>
+<span class="cm">// Command (state_manager → brain)</span>
+{<span class="str">"p_wait"</span>: <span class="num">0.368</span>, <span class="str">"state"</span>: <span class="num">null</span>}
+
+<span class="cm">// Result (brain → state_manager)</span>
+{
+  <span class="str">"state"</span>: <span class="num">0</span>,               <span class="cm">// EXPM_LR</span>
+  <span class="str">"action"</span>: <span class="num">1</span>,              <span class="cm">// RIGHT</span>
+  <span class="str">"reward"</span>: <span class="num">1.0</span>,            <span class="cm">// dead shrimp (wrong choice)</span>
+  <span class="str">"is_experimental"</span>: <span class="num">true</span>,  <span class="cm">// EXPM state</span>
+  <span class="str">"correct"</span>: <span class="num">false</span>,          <span class="cm">// should have gone LEFT</span>
+  <span class="str">"trial"</span>: <span class="num">142</span>              <span class="cm">// running count</span>
+}
+  </div>
+
+  <p>Every 25 trials, the brain prints the full Q-table to the console so you can watch the values evolve during the experiment.</p>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 6: THE EXPERIMENT -->
+<!-- ============================================================ -->
+<div class="section-divider"></div>
+<section id="experiment" class="content-section">
+  <div class="section-label green"><span class="dot"></span>06 — The Experiment</div>
+  <h2>state_manager.py</h2>
+  <p class="section-desc">The conductor. Orchestrates training, testing, navigation, and result collection.</p>
+
+  <h3>TurtleBot4Navigator</h3>
+  <p>A library from Clearpath that wraps Nav2's raw action servers into simple Python methods:</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+    <div class="info-card">
+      <div class="card-label cyan">getPoseStamped(coords, direction)</div>
+      <p>Creates a ROS PoseStamped message — a position [x, y] plus an orientation (NORTH, SOUTH, etc.) converted to a quaternion. This is the "goal" you hand to Nav2.</p>
+    </div>
+    <div class="info-card">
+      <div class="card-label cyan">startToPose(goal)</div>
+      <p>Tells Nav2 "go here." Nav2 plans a path, drives the robot, avoids obstacles. This call <strong>blocks until the robot arrives</strong> (or fails). This is why each trial takes real time.</p>
+    </div>
+    <div class="info-card">
+      <div class="card-label cyan">waitUntilNav2Active()</div>
+      <p>Blocks until Nav2's action servers are ready. Called once at startup — doesn't matter how long Gazebo takes to start, this waits.</p>
+    </div>
+    <div class="info-card">
+      <div class="card-label cyan">Navigation Coordinates</div>
+      <p><strong>CENTER:</strong> (0.0, -1.5)<br><strong>LEFT:</strong> (-2.5, 1.5)<br><strong>RIGHT:</strong> (2.5, 1.5)</p>
+    </div>
+  </div>
+
+  <h3>The Timer Trick</h3>
+  <div class="code-block">
+    <span class="code-label">state_manager.py : 73-75</span>
+<span class="cm"># run experiment in a timer callback to not block the constructor</span>
+self.<span class="fn">create_timer</span>(<span class="num">2.0</span>, self.<span class="fn">run_experiment_once</span>)
+self.experiment_started = <span class="num">False</span>
+  </div>
+
+  <p>Why not just run the experiment in <code>__init__</code>? Because the constructor needs to <strong>finish</strong> so that <code>rclpy.spin()</code> can start. If we ran the experiment inside the constructor, the node's subscribers wouldn't be active yet — we'd publish commands but never receive results. The 2-second timer lets the constructor finish, spin starts, and then the experiment begins.</p>
+
+  <h3>send_trial_cmd — The Synchronous-Over-Async Pattern</h3>
+  <div class="code-block">
+    <span class="code-label">state_manager.py : 87-110</span>
+<span class="kw">def</span> <span class="fn">send_trial_cmd</span>(self, p_wait, forced_state=<span class="num">None</span>):
+    <span class="cm"># build and publish the command</span>
+    self.last_result = <span class="num">None</span>
+    self.waiting_for_result = <span class="num">True</span>
+
+    msg = String()
+    msg.data = json.<span class="fn">dumps</span>({<span class="str">'p_wait'</span>: p_wait})
+    self.cmd_pub.<span class="fn">publish</span>(msg)
+
+    <span class="cm"># spin until we get a result (with timeout)</span>
+    timeout = time.<span class="fn">time</span>() + <span class="num">10.0</span>
+    <span class="kw">while</span> self.waiting_for_result <span class="kw">and</span> time.<span class="fn">time</span>() &lt; timeout:
+        rclpy.<span class="fn">spin_once</span>(self, timeout_sec=<span class="num">0.1</span>)
+
+    <span class="kw">return</span> self.last_result
+  </div>
+
+  <p>ROS 2 is asynchronous — you publish a message and callbacks arrive whenever. But the experiment needs to be sequential (send command, wait for answer, then navigate). So we use <code>spin_once()</code> in a loop — this processes one incoming message (or waits 0.1s) on each iteration. When <code>result_callback</code> fires, it sets <code class="plain">self.waiting_for_result = False</code> and the loop exits. There's a 10-second timeout in case the brain is dead.</p>
+
+  <h3>Phase 1: Training</h3>
+  <div class="info-card">
+    <div class="card-label green">100 trials — no robot movement</div>
+    <p>The robot sits still. The state manager fires 100 trial commands at the brain with <code class="orange">p_wait=1.0</code> (no patience discount). The brain runs Q-learning each time, learning which Q-values should be high and low. This takes a few seconds total.</p>
+  </div>
+
+  <div class="code-block">
+    <span class="code-label">state_manager.py : 139-170</span>
+<span class="kw">def</span> <span class="fn">run_training_phase</span>(self):
+    state_total = np.<span class="fn">zeros</span>(<span class="var">STATES</span>)      <span class="cm"># [0, 0, 0, 0]</span>
+    state_hits = np.<span class="fn">zeros</span>(<span class="var">STATES</span>)       <span class="cm"># [0, 0, 0, 0]</span>
+
+    <span class="kw">for</span> t <span class="kw">in</span> <span class="fn">range</span>(<span class="var">TRAINING_TRIALS</span>):     <span class="cm"># 100 times</span>
+        result = self.<span class="fn">send_trial_cmd</span>(p_wait=<span class="num">1.0</span>)
+
+        s = result[<span class="str">'state'</span>]
+        state_total[s] += <span class="num">1</span>              <span class="cm"># count per state</span>
+        state_hits[s] += <span class="fn">int</span>(result[<span class="str">'correct'</span>])
+
+        <span class="cm"># log every 25 trials</span>
+        <span class="kw">if</span> (t + <span class="num">1</span>) % <span class="num">25</span> == <span class="num">0</span>:
+            <span class="cm"># prints: "Training 25/100: EXPM_LR=80%, EXPM_RL=75%, ..."</span>
+  </div>
+
+  <p>By the end, accuracy per state is typically 80-95%. Not 100% because softmax is probabilistic — even with good Q-values, the agent sometimes explores the wrong action.</p>
+
+  <h3>Phase 2: Testing</h3>
+  <p>This is where the robot moves. <strong>13 delays</strong> (10, 20, ... 130 seconds), <strong>20 trials per delay</strong>.</p>
+
+  <div class="flow-steps">
+    <div class="flow-step green">
+      <div class="step-title"><span class="step-num green">1</span> Navigate to CENTER</div>
+      <p>Robot drives to (0, -1.5) — the starting position in the south half of the room.</p>
+    </div>
+    <div class="flow-step orange">
+      <div class="step-title"><span class="step-num orange">2</span> For each delay (10s, 20s, ... 130s)</div>
+      <p>Calculate <code class="orange">p_wait = prob_wait(delay)</code>. For 10s → 0.997, for 70s → 0.368, for 130s → 0.136.</p>
+    </div>
+    <div class="flow-step orange">
+      <div class="step-title"><span class="step-num orange">3</span> Send trial command to brain</div>
+      <p>Brain picks a random state, applies patience discount, chooses LEFT or RIGHT.</p>
+    </div>
+    <div class="flow-step cyan">
+      <div class="step-title"><span class="step-num cyan">4</span> Navigate to chosen chamber</div>
+      <p>If action=LEFT → drive to (-2.5, 1.5). If action=RIGHT → drive to (2.5, 1.5). The robot goes through the gap in the divider wall, turns, and drives to the chamber. Nav2 handles pathfinding.</p>
+    </div>
+    <div class="flow-step green">
+      <div class="step-title"><span class="step-num green">5</span> Record &amp; return to CENTER</div>
+      <p>Record whether it was correct (experimental: chose live shrimp? control: avoided unobtainable?). Then drive back to (0, -1.5) for the next trial.</p>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="card-label green">total robot trips</div>
+    <p>13 delays × 20 trials × 2 navigations (to chamber + back to center) = <strong>520 navigation actions</strong>. Each navigation takes the robot through the gap and across the room. This is the slow part of the experiment.</p>
+  </div>
+
+  <h3>Recording Results</h3>
+  <div class="code-block">
+    <span class="code-label">state_manager.py : 200-212</span>
+<span class="cm"># for experimental trials: did it choose live shrimp?</span>
+<span class="kw">if</span> is_exp:
+    exp_total += <span class="num">1</span>
+    exp_correct += <span class="fn">int</span>(reward > <span class="var">DEAD_RWD</span>)   <span class="cm"># reward > 1.0 means live shrimp (5.0)</span>
+<span class="kw">else</span>:
+    ctrl_total += <span class="num">1</span>
+    ctrl_correct += <span class="fn">int</span>(reward > <span class="var">UNOBTAINABLE_RWD</span>)  <span class="cm"># reward > 0.0 means dead shrimp (1.0)</span>
+  </div>
+
+  <p>For experimental trials: "correct" means it chose the live shrimp (reward 5.0 > 1.0). For control trials: "correct" means it chose dead shrimp over unobtainable (reward 1.0 > 0.0).</p>
+
+  <h3>Saving Results</h3>
+  <p>After all 360 trials (100 training + 260 testing), everything is saved to <code class="plain">cuttlefish_sim/sim_gazebo/results.json</code>:</p>
+
+  <div class="code-block">
+    <span class="code-label">JSON structure</span>
+{
+  <span class="str">"training"</span>: [
+    {<span class="str">"state"</span>: <span class="num">0</span>, <span class="str">"action"</span>: <span class="num">0</span>, <span class="str">"reward"</span>: <span class="num">5.0</span>, <span class="str">"correct"</span>: <span class="num">true</span>, ...},
+    ...  <span class="cm">// 100 entries</span>
+  ],
+  <span class="str">"testing"</span>: {
+    <span class="str">"10"</span>: [...],   <span class="cm">// 20 entries for delay=10s</span>
+    <span class="str">"20"</span>: [...],   <span class="cm">// 20 entries for delay=20s</span>
+    ...
+    <span class="str">"130"</span>: [...]   <span class="cm">// 20 entries for delay=130s</span>
+  },
+  <span class="str">"delays"</span>: [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, ..., <span class="num">130</span>],
+  <span class="str">"params"</span>: {<span class="str">"training_trials"</span>: <span class="num">100</span>, <span class="str">"testing_trials_per_delay"</span>: <span class="num">20</span>}
+}
   </div>
 </section>
 
-<!-- ========== PART 3: BIG PICTURE ========== -->
-<section id="bigpicture">
-  <div class="reveal">
-    <div class="section-label purple"><span class="dot"></span> The Goal</div>
-    <h2>Putting it all together</h2>
-    <p class="section-desc">The endgame: take the cuttlefish decision-making brain and run it on the physical TurtleBot4.</p>
+
+<!-- ============================================================ -->
+<!-- SECTION 7: RESULTS -->
+<!-- ============================================================ -->
+<div class="section-divider"></div>
+<section id="results" class="content-section">
+  <div class="section-label green"><span class="dot"></span>07 — The Results</div>
+  <h2>plot_results.py</h2>
+  <p class="section-desc">After the experiment, run <code>ros2 run cuttlebot_nodes plot_results</code> to generate the graphs.</p>
+
+  <h3>Plot 1: Training Curves</h3>
+  <p>Shows how each state's accuracy improves over training trials. Four lines (one per state) starting near 50% (random guessing) and climbing to 80-95%.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">Training Learning Curves (expected shape)</div>
+    <svg viewBox="0 0 300 160" style="width:100%;max-width:500px;margin:0 auto;display:block;">
+      <!-- axes -->
+      <line x1="40" y1="10" x2="40" y2="130" stroke="var(--border)" stroke-width="0.5"/>
+      <line x1="40" y1="130" x2="280" y2="130" stroke="var(--border)" stroke-width="0.5"/>
+
+      <!-- y-axis labels -->
+      <text x="35" y="130" fill="var(--text-muted)" font-size="7" text-anchor="end" font-family="DM Mono">0%</text>
+      <text x="35" y="90" fill="var(--text-muted)" font-size="7" text-anchor="end" font-family="DM Mono">50%</text>
+      <text x="35" y="15" fill="var(--text-muted)" font-size="7" text-anchor="end" font-family="DM Mono">100%</text>
+
+      <!-- x-axis label -->
+      <text x="160" y="148" fill="var(--text-muted)" font-size="7" text-anchor="middle" font-family="DM Mono">trials per state</text>
+
+      <!-- grid lines -->
+      <line x1="40" y1="90" x2="280" y2="90" stroke="var(--border)" stroke-width="0.3" stroke-dasharray="2"/>
+      <line x1="40" y1="50" x2="280" y2="50" stroke="var(--border)" stroke-width="0.3" stroke-dasharray="2"/>
+
+      <!-- curves (approximate learning curves) -->
+      <!-- EXPM_LR -->
+      <polyline points="40,90 80,60 120,40 160,30 200,22 240,18 280,16" fill="none" stroke="var(--blue)" stroke-width="1.5"/>
+      <!-- EXPM_RL -->
+      <polyline points="40,95 80,65 120,45 160,35 200,28 240,24 280,22" fill="none" stroke="var(--cyan)" stroke-width="1.5"/>
+      <!-- CTRL_LR -->
+      <polyline points="40,88 80,58 120,42 160,32 200,26 240,22 280,20" fill="none" stroke="var(--orange)" stroke-width="1.5"/>
+      <!-- CTRL_RL -->
+      <polyline points="40,92 80,62 120,48 160,38 200,30 240,25 280,23" fill="none" stroke="var(--red)" stroke-width="1.5"/>
+
+      <!-- legend -->
+      <line x1="50" y1="155" x2="60" y2="155" stroke="var(--blue)" stroke-width="1.5"/>
+      <text x="63" y="157" fill="var(--text-dim)" font-size="6" font-family="DM Mono">EXPM_LR</text>
+      <line x1="110" y1="155" x2="120" y2="155" stroke="var(--cyan)" stroke-width="1.5"/>
+      <text x="123" y="157" fill="var(--text-dim)" font-size="6" font-family="DM Mono">EXPM_RL</text>
+      <line x1="170" y1="155" x2="180" y2="155" stroke="var(--orange)" stroke-width="1.5"/>
+      <text x="183" y="157" fill="var(--text-dim)" font-size="6" font-family="DM Mono">CTRL_LR</text>
+      <line x1="230" y1="155" x2="240" y2="155" stroke="var(--red)" stroke-width="1.5"/>
+      <text x="243" y="157" fill="var(--text-dim)" font-size="6" font-family="DM Mono">CTRL_RL</text>
+    </svg>
   </div>
 
-  <div class="big-picture-grid reveal">
-    <div class="bp-card cyan-card">
-      <div class="bp-icon">&#129302;</div>
-      <h3>TurtleBot4</h3>
-      <p>Physical robot with Nav2 navigation, SLAM mapping, and ROS 2 infrastructure. It can autonomously move to any point in a mapped room.</p>
-    </div>
-    <div class="bp-arrow">
-      <span>merge</span>
-      <div class="arrow-line"></div>
-      <span style="font-size:1.2rem;">&#8596;</span>
-      <div class="arrow-line"></div>
-      <span>into</span>
-    </div>
-    <div class="bp-card orange-card">
-      <div class="bp-icon">&#129425;</div>
-      <h3>Cuttlefish Brain</h3>
-      <p>Episodic memory, hunger-modulated patience, and softmax decision-making. Proven in Webots simulation with an e-puck robot.</p>
-    </div>
+  <h3>Plot 2: Delay Performance</h3>
+  <p>The key result. Shows what percentage of trials the agent chose the "better" option at each delay level.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">Delayed Gratification Performance vs Delay (expected shape)</div>
+    <svg viewBox="0 0 300 160" style="width:100%;max-width:500px;margin:0 auto;display:block;">
+      <!-- axes -->
+      <line x1="40" y1="10" x2="40" y2="130" stroke="var(--border)" stroke-width="0.5"/>
+      <line x1="40" y1="130" x2="280" y2="130" stroke="var(--border)" stroke-width="0.5"/>
+
+      <!-- y-axis labels -->
+      <text x="35" y="130" fill="var(--text-muted)" font-size="7" text-anchor="end" font-family="DM Mono">0%</text>
+      <text x="35" y="90" fill="var(--text-muted)" font-size="7" text-anchor="end" font-family="DM Mono">50%</text>
+      <text x="35" y="15" fill="var(--text-muted)" font-size="7" text-anchor="end" font-family="DM Mono">100%</text>
+
+      <!-- x-axis labels -->
+      <text x="55" y="140" fill="var(--text-muted)" font-size="6" text-anchor="middle" font-family="DM Mono">10</text>
+      <text x="92" y="140" fill="var(--text-muted)" font-size="6" text-anchor="middle" font-family="DM Mono">30</text>
+      <text x="129" y="140" fill="var(--text-muted)" font-size="6" text-anchor="middle" font-family="DM Mono">50</text>
+      <text x="166" y="140" fill="var(--text-muted)" font-size="6" text-anchor="middle" font-family="DM Mono">70</text>
+      <text x="203" y="140" fill="var(--text-muted)" font-size="6" text-anchor="middle" font-family="DM Mono">90</text>
+      <text x="240" y="140" fill="var(--text-muted)" font-size="6" text-anchor="middle" font-family="DM Mono">110</text>
+      <text x="271" y="140" fill="var(--text-muted)" font-size="6" text-anchor="middle" font-family="DM Mono">130</text>
+      <text x="160" y="155" fill="var(--text-muted)" font-size="7" text-anchor="middle" font-family="DM Mono">delay (seconds)</text>
+
+      <!-- grid -->
+      <line x1="40" y1="90" x2="280" y2="90" stroke="var(--border)" stroke-width="0.3" stroke-dasharray="2"/>
+      <line x1="40" y1="50" x2="280" y2="50" stroke="var(--border)" stroke-width="0.3" stroke-dasharray="2"/>
+
+      <!-- experimental line (drops with delay) -->
+      <polyline points="55,16 74,18 92,20 111,28 129,40 148,55 166,72 185,85 203,95 222,100 240,105 258,108 271,110" fill="none" stroke="var(--orange)" stroke-width="2"/>
+      <!-- markers -->
+      <circle cx="55" cy="16" r="2.5" fill="var(--orange)"/>
+      <circle cx="92" cy="20" r="2.5" fill="var(--orange)"/>
+      <circle cx="129" cy="40" r="2.5" fill="var(--orange)"/>
+      <circle cx="166" cy="72" r="2.5" fill="var(--orange)"/>
+      <circle cx="203" cy="95" r="2.5" fill="var(--orange)"/>
+      <circle cx="240" cy="105" r="2.5" fill="var(--orange)"/>
+      <circle cx="271" cy="110" r="2.5" fill="var(--orange)"/>
+
+      <!-- control line (stays flat-ish) -->
+      <polyline points="55,22 74,24 92,20 111,25 129,22 148,28 166,24 185,26 203,22 222,28 240,25 258,24 271,26" fill="none" stroke="var(--cyan)" stroke-width="2"/>
+      <circle cx="55" cy="22" r="2.5" fill="var(--cyan)"/>
+      <circle cx="129" cy="22" r="2.5" fill="var(--cyan)"/>
+      <circle cx="203" cy="22" r="2.5" fill="var(--cyan)"/>
+      <circle cx="271" cy="26" r="2.5" fill="var(--cyan)"/>
+
+      <!-- legend -->
+      <line x1="90" y1="12" x2="105" y2="12" stroke="var(--orange)" stroke-width="2"/>
+      <circle cx="97.5" cy="12" r="2" fill="var(--orange)"/>
+      <text x="108" y="14" fill="var(--text-dim)" font-size="7" font-family="DM Mono">Experimental</text>
+      <line x1="180" y1="12" x2="195" y2="12" stroke="var(--cyan)" stroke-width="2"/>
+      <circle cx="187.5" cy="12" r="2" fill="var(--cyan)"/>
+      <text x="198" y="14" fill="var(--text-dim)" font-size="7" font-family="DM Mono">Control</text>
+    </svg>
   </div>
 
-  <div class="diagram-wrap reveal" style="text-align:center;">
-    <div class="diagram-title">What's left to do</div>
-    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; text-align:left; margin-top:0.5rem;">
-      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:1.2rem;">
-        <div style="font-family:'DM Mono',monospace; font-size:0.62rem; color:var(--yellow); letter-spacing:0.1em; margin-bottom:0.4rem;">TODO 01</div>
-        <h5 style="font-size:0.85rem; margin-bottom:0.25rem;">Reliable Automation</h5>
-        <p style="font-size:0.75rem; color:var(--text-dim);">Make automation2.py bulletproof. Automate the 2D Pose Estimate step (currently manual in RViz).</p>
-      </div>
-      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:1.2rem;">
-        <div style="font-family:'DM Mono',monospace; font-size:0.62rem; color:var(--yellow); letter-spacing:0.1em; margin-bottom:0.4rem;">TODO 02</div>
-        <h5 style="font-size:0.85rem; margin-bottom:0.25rem;">Integrate the Model</h5>
-        <p style="font-size:0.75rem; color:var(--text-dim);">Port the episodic memory &amp; patience model into a ROS 2 node. Reverse-engineer the mail delivery script to work with the brain.</p>
-      </div>
-      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:1.2rem;">
-        <div style="font-family:'DM Mono',monospace; font-size:0.62rem; color:var(--yellow); letter-spacing:0.1em; margin-bottom:0.4rem;">TODO 03</div>
-        <h5 style="font-size:0.85rem; margin-bottom:0.25rem;">Location Awareness</h5>
-        <p style="font-size:0.75rem; color:var(--text-dim);">Have the TurtleBot report its current position back to the decision model, so the brain knows "where" it is.</p>
-      </div>
-    </div>
-  </div>
+  <h3>What This Means</h3>
+  <p>The <span class="hl-orange">orange experimental line</span> starts high (~95% at 10s delay) and drops as delay increases — the agent stops waiting for the live shrimp. The <span class="hl-cyan">cyan control line</span> stays flat around 80-90% — patience doesn't affect dead-vs-unobtainable choices.</p>
+
+  <p>This matches <strong>real cuttlefish behavior</strong>. In the biological experiment, cuttlefish waited for live shrimp at short delays but gave up at longer delays. The control condition (where waiting provided no benefit) was unaffected by delay. Our Q-learning agent reproduces this pattern because the patience discount specifically targets the delayed reward.</p>
 </section>
 
-<footer>
-  <p>cuttlebot project atlas &mdash; auto-generated documentation</p>
-</footer>
 
+<!-- ============================================================ -->
+<!-- SECTION 8: FULL FLOW -->
+<!-- ============================================================ -->
+<div class="section-divider"></div>
+<section id="fullflow" class="content-section">
+  <div class="section-label purple"><span class="dot"></span>08 — The Full Flow</div>
+  <h2>One Complete Trial</h2>
+  <p class="section-desc">Everything that happens during a single testing trial, from command to navigation and back.</p>
+
+  <div class="diagram-wrap" style="padding:1.5rem;">
+    <div class="diagram-title">Sequence Diagram — One Trial During Testing Phase</div>
+    <svg viewBox="0 0 440 340" class="seq-svg" style="width:100%;max-width:750px;margin:0 auto;display:block;">
+      <!-- lane headers -->
+      <rect x="15" y="8" width="100" height="20" rx="4" fill="var(--green-glow)" stroke="var(--green)" stroke-width="0.5"/>
+      <text x="65" y="21" class="lane-label" text-anchor="middle" fill="var(--green)">state_manager</text>
+
+      <rect x="170" y="8" width="85" height="20" rx="4" fill="var(--orange-glow)" stroke="var(--orange)" stroke-width="0.5"/>
+      <text x="212" y="21" class="lane-label" text-anchor="middle" fill="var(--orange)">brain_node</text>
+
+      <rect x="315" y="8" width="110" height="20" rx="4" fill="var(--cyan-glow)" stroke="var(--cyan)" stroke-width="0.5"/>
+      <text x="370" y="21" class="lane-label" text-anchor="middle" fill="var(--cyan)">location_awareness</text>
+
+      <!-- lane lines -->
+      <line x1="65" y1="32" x2="65" y2="330" class="lane-line"/>
+      <line x1="212" y1="32" x2="212" y2="330" class="lane-line"/>
+      <line x1="370" y1="32" x2="370" y2="330" class="lane-line"/>
+
+      <!-- Step 1: send trial command -->
+      <line x1="65" y1="50" x2="212" y2="50" stroke="var(--orange)" stroke-width="1" marker-end="url(#arrowOrange)"/>
+      <text x="138" y="46" class="msg-label" text-anchor="middle" fill="var(--orange)">/carl/trial_cmd</text>
+      <text x="138" y="58" class="action-label" text-anchor="middle" fill="var(--text-muted)">{"p_wait": 0.368}</text>
+
+      <!-- Step 2: brain processes -->
+      <rect x="192" y="68" width="40" height="40" class="action-box" fill="var(--orange-glow)" stroke="var(--orange)" stroke-width="0.5"/>
+      <text x="212" y="82" class="action-label" text-anchor="middle" fill="var(--orange)">Q-learn</text>
+      <text x="212" y="92" class="action-label" text-anchor="middle" fill="var(--text-muted)">softmax</text>
+      <text x="212" y="102" class="action-label" text-anchor="middle" fill="var(--text-muted)">→ RIGHT</text>
+
+      <!-- Step 3: brain sends result -->
+      <line x1="212" y1="118" x2="65" y2="118" stroke="var(--orange)" stroke-width="1" marker-end="url(#arrowGreen)"/>
+      <text x="138" y="114" class="msg-label" text-anchor="middle" fill="var(--orange)">/carl/trial_result</text>
+      <text x="138" y="126" class="action-label" text-anchor="middle" fill="var(--text-muted)">{"action": 1, "reward": 1.0}</text>
+
+      <!-- Step 4: state_manager navigates to chamber -->
+      <rect x="30" y="140" width="70" height="30" class="action-box" fill="var(--cyan-glow)" stroke="var(--cyan)" stroke-width="0.5"/>
+      <text x="65" y="154" class="action-label" text-anchor="middle" fill="var(--cyan)">navigate to</text>
+      <text x="65" y="163" class="action-label" text-anchor="middle" fill="var(--cyan)">RIGHT (2.5, 1.5)</text>
+
+      <!-- robot driving (wavy line) -->
+      <text x="65" y="183" class="action-label" text-anchor="middle" fill="var(--text-muted)">robot driving...</text>
+
+      <!-- Step 5: location publishes zone -->
+      <line x1="370" y1="195" x2="65" y2="195" stroke="var(--cyan)" stroke-width="1" marker-end="url(#arrowGreen)" stroke-dasharray="3"/>
+      <text x="218" y="191" class="msg-label" text-anchor="middle" fill="var(--cyan)">/carl/zone</text>
+      <text x="218" y="203" class="action-label" text-anchor="middle" fill="var(--text-muted)">{"zone": "RIGHT_CHAMBER"}</text>
+
+      <!-- Step 6: arrived, record result -->
+      <rect x="30" y="215" width="70" height="22" class="action-box" fill="var(--green-glow)" stroke="var(--green)" stroke-width="0.5"/>
+      <text x="65" y="229" class="action-label" text-anchor="middle" fill="var(--green)">record result</text>
+
+      <!-- Step 7: navigate back to center -->
+      <rect x="30" y="248" width="70" height="30" class="action-box" fill="var(--cyan-glow)" stroke="var(--cyan)" stroke-width="0.5"/>
+      <text x="65" y="262" class="action-label" text-anchor="middle" fill="var(--cyan)">navigate to</text>
+      <text x="65" y="271" class="action-label" text-anchor="middle" fill="var(--cyan)">CENTER (0, -1.5)</text>
+
+      <!-- robot driving back -->
+      <text x="65" y="291" class="action-label" text-anchor="middle" fill="var(--text-muted)">robot driving...</text>
+
+      <!-- zone update -->
+      <line x1="370" y1="305" x2="65" y2="305" stroke="var(--cyan)" stroke-width="1" marker-end="url(#arrowGreen)" stroke-dasharray="3"/>
+      <text x="218" y="301" class="msg-label" text-anchor="middle" fill="var(--cyan)">/carl/zone</text>
+      <text x="218" y="313" class="action-label" text-anchor="middle" fill="var(--text-muted)">{"zone": "CENTER"}</text>
+
+      <!-- ready for next -->
+      <text x="65" y="328" class="action-label" text-anchor="middle" fill="var(--green)">ready for next trial</text>
+
+      <!-- arrow markers -->
+      <defs>
+        <marker id="arrowOrange" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+          <path d="M0,0 L6,2 L0,4" fill="var(--orange)"/>
+        </marker>
+        <marker id="arrowGreen" markerWidth="6" markerHeight="4" refX="0" refY="2" orient="auto">
+          <path d="M6,0 L0,2 L6,4" fill="var(--green)"/>
+        </marker>
+        <marker id="arrowCyan" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+          <path d="M0,0 L6,2 L0,4" fill="var(--cyan)"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <p>This entire sequence happens <strong>260 times</strong> during the testing phase (13 delays × 20 trials). The Q-learning decision is instant (milliseconds), but the navigation takes real time — the robot physically drives through the gap, across the room, and back.</p>
+
+  <h3>What You'd See</h3>
+  <p>In Gazebo and RViz, you'd watch the robot:</p>
+  <div class="flow-steps">
+    <div class="flow-step cyan">
+      <div class="step-title">Sitting at center</div>
+      <p>The state manager sends a trial command. The brain instantly decides.</p>
+    </div>
+    <div class="flow-step cyan">
+      <div class="step-title">Driving through the gap</div>
+      <p>Nav2 plans a path from (0, -1.5) through the 1.2m gap in the divider at y=0.</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-title">Arriving at a chamber</div>
+      <p>The robot reaches the blue or red marker. Location awareness detects the zone change.</p>
+    </div>
+    <div class="flow-step cyan">
+      <div class="step-title">Driving back through the gap</div>
+      <p>Nav2 plans the return path. The robot drives back to center.</p>
+    </div>
+    <div class="flow-step green">
+      <div class="step-title">Repeat</div>
+      <p>At short delays, the robot alternates chambers (picking the right one). At long delays, it starts always going to the same chamber (the dead shrimp side).</p>
+    </div>
+  </div>
+
+  <div class="info-card" style="border-color:var(--purple);margin-top:2rem;">
+    <div class="card-label" style="color:var(--purple);">the big picture</div>
+    <p>This experiment proves that a simple Q-learning agent with a patience discount can reproduce the delayed gratification behavior observed in real cuttlefish. The robot is the cuttlefish. The chambers are the shrimp. The <code class="orange">prob_wait()</code> function is the biological patience mechanism modulated by serotonin and hunger. The math is identical — we just put it on wheels.</p>
+  </div>
+
+</section>
+
+<div style="height:6rem;"></div>
+
+<!-- SCROLL REVEAL SCRIPT -->
 <script>
-// Scroll reveal
-const reveals = document.querySelectorAll('.reveal');
+// Intersection Observer for scroll reveal
 const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
     }
   });
-}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-reveals.forEach(el => observer.observe(el));
+}, { threshold: 0.1 });
 
-// Nav active state
-const sections = document.querySelectorAll('section[id], .hero[id]');
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Active nav link tracking
+const sections = document.querySelectorAll('.content-section');
 const navLinks = document.querySelectorAll('nav .nav-links a');
 
 window.addEventListener('scroll', () => {
   let current = '';
   sections.forEach(section => {
     const top = section.offsetTop - 100;
-    if (scrollY >= top) current = section.getAttribute('id');
+    if (window.scrollY >= top) {
+      current = section.getAttribute('id');
+    }
   });
-  // hero
-  if (scrollY < 400) current = 'overview';
-  navLinks.forEach(a => {
-    a.classList.remove('active');
-    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) {
+      link.classList.add('active');
+    }
   });
 });
 </script>
+
 </body>
 </html>

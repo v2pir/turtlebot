@@ -1,3 +1,4 @@
+import json
 import math
 
 import rclpy
@@ -5,6 +6,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
+from std_msgs.msg import String
 
 
 class LocationAwareness(Node):
@@ -16,6 +18,10 @@ class LocationAwareness(Node):
         self.y = None
         self.yaw = None
         self.source = None
+        self.current_zone = None
+
+        # zone publisher for the delayed gratification experiment
+        self.zone_pub = self.create_publisher(String, '/carl/zone', 10)
 
         # amcl absolute coordinates
         amcl_qos = QoSProfile(
@@ -56,6 +62,31 @@ class LocationAwareness(Node):
         self.y = msg.pose.pose.position.y
         self.yaw = self.quaternion_to_yaw(msg.pose.pose.orientation)
         self.source = 'odom'
+        self._publish_zone()
+
+    def _compute_zone(self):
+        """Determine which zone the robot is in based on coordinates."""
+        if self.x is None:
+            return None
+        if self.y < 0.5:
+            return 'CENTER'
+        elif self.x < -1.0 and self.y > 0.5:
+            return 'LEFT_CHAMBER'
+        elif self.x > 1.0 and self.y > 0.5:
+            return 'RIGHT_CHAMBER'
+        else:
+            return 'DIVIDER'
+
+    def _publish_zone(self):
+        zone = self._compute_zone()
+        if zone is None:
+            return
+        if zone != self.current_zone:
+            self.current_zone = zone
+            self.get_logger().info(f'Zone changed: {zone}')
+        msg = String()
+        msg.data = json.dumps({'zone': zone})
+        self.zone_pub.publish(msg)
 
         # convert quaternion to angles
     def quaternion_to_yaw(self, q):

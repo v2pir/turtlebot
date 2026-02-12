@@ -125,37 +125,75 @@
       </link>
     </model>
 
-    <!-- obstacle: box in the room for navigation testing -->
-    <model name="obstacle_box">
+    <!--
+      Delayed Gratification Experiment Layout
+      Divider wall at y=0 splits room into:
+        - South half: CENTER area (robot start, y < 0)
+        - North half: LEFT and RIGHT chambers (y > 0)
+      1.2m gap in center of divider for robot passage
+    -->
+
+    <!-- divider wall: left segment -->
+    <model name="divider_left">
       <static>true</static>
-      <pose>1.5 1.0 0.25 0 0 0</pose>
+      <pose>-2.3 0 1.25 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>0.5 0.5 0.5</size></box></geometry>
+          <geometry><box><size>3.4 0.1 2.5</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.5 0.5 0.5</size></box></geometry>
+          <geometry><box><size>3.4 0.1 2.5</size></box></geometry>
           <material>
-            <ambient>0.8 0.4 0.1 1</ambient>
-            <diffuse>0.8 0.4 0.1 1</diffuse>
+            <ambient>0.7 0.7 0.7 1</ambient>
+            <diffuse>0.7 0.7 0.7 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- obstacle: cylinder -->
-    <model name="obstacle_cylinder">
+    <!-- divider wall: right segment -->
+    <model name="divider_right">
       <static>true</static>
-      <pose>-1.5 -1.0 0.4 0 0 0</pose>
+      <pose>2.3 0 1.25 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><cylinder><radius>0.3</radius><length>0.8</length></cylinder></geometry>
+          <geometry><box><size>3.4 0.1 2.5</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><cylinder><radius>0.3</radius><length>0.8</length></cylinder></geometry>
+          <geometry><box><size>3.4 0.1 2.5</size></box></geometry>
           <material>
-            <ambient>0.2 0.5 0.8 1</ambient>
-            <diffuse>0.2 0.5 0.8 1</diffuse>
+            <ambient>0.7 0.7 0.7 1</ambient>
+            <diffuse>0.7 0.7 0.7 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- left chamber marker (blue) — flat on ground -->
+    <model name="marker_left">
+      <static>true</static>
+      <pose>-2.5 2.5 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><box><size>1.0 1.0 0.02</size></box></geometry>
+          <material>
+            <ambient>0.1 0.3 0.9 1</ambient>
+            <diffuse>0.1 0.3 0.9 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- right chamber marker (red) — flat on ground -->
+    <model name="marker_right">
+      <static>true</static>
+      <pose>2.5 2.5 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><box><size>1.0 1.0 0.02</size></box></geometry>
+          <material>
+            <ambient>0.9 0.2 0.1 1</ambient>
+            <diffuse>0.9 0.2 0.1 1</diffuse>
           </material>
         </visual>
       </link>
