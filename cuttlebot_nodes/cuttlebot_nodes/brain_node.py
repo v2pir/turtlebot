@@ -14,8 +14,9 @@ from rclpy.node import Node
 from std_msgs.msg import String
 
 # add sim_gazebo to path to import q-learning lib
+# use realpath to resolve symlinks from colcon build
 sys.path.insert(0, os.path.join(
-    os.path.dirname(__file__), '..', '..', '..', 'cuttlefish_sim', 'sim_gazebo'))
+    os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'cuttlefish_sim', 'sim_gazebo'))
 from delayed_gratification import (
     QTable, run_trial, is_correct,
     STATE_NAMES, ACTION_NAMES,

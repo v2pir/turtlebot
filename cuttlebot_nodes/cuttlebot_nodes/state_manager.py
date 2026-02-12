@@ -20,8 +20,9 @@ from std_msgs.msg import String
 from turtlebot4_navigation.turtlebot4_navigator import TurtleBot4Directions, TurtleBot4Navigator
 
 # add sim_gazebo to path for the q-learning library
+# use realpath to resolve symlinks from colcon build
 sys.path.insert(0, os.path.join(
-    os.path.dirname(__file__), '..', '..', '..', 'cuttlefish_sim', 'sim_gazebo'))
+    os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'cuttlefish_sim', 'sim_gazebo'))
 from delayed_gratification import (
     prob_wait, ACTION_NAMES, STATE_NAMES,
     LEFT, RIGHT, EXPM_LR, EXPM_RL, CTRL_LR, CTRL_RL,
