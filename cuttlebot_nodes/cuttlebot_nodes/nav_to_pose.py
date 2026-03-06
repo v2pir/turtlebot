@@ -31,17 +31,16 @@ def main():
          navigator.info('Docking before intialising pose')
          navigator.dock()
 
-    # Set initial pose
-    initial_pose = navigator.getPoseStamped([-0.5180672407, -0.5633400679], TurtleBot4Directions.SOUTH)
+    # Set initial pose (cuttlebot_world: spawn at center-south, facing +y = WEST)
+    initial_pose = navigator.getPoseStamped([0.0, -1.0], TurtleBot4Directions.WEST)
     navigator.setInitialPose(initial_pose)
     print("[DEBUG] Initial pose set")
 
     # Wait for Nav2
     navigator.waitUntilNav2Active()
 
-    # Set goal poses
-    # this is tentative, for testing purposes, should change every time
-    goal_pose = navigator.getPoseStamped([-2.0523757935, -1.5493714809], TurtleBot4Directions.SOUTH)
+    # Set goal pose (left chamber in cuttlebot_world)
+    goal_pose = navigator.getPoseStamped([-2.5, 1.5], TurtleBot4Directions.NORTH)
     print("[DEBUG] Goal Pose set")
 
     # # Undock (no need to undock in our case)

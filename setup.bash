@@ -42,5 +42,5 @@ fi
 echo ""
 echo "Ready. You can now run:"
 echo "  ros2 run cuttlebot_nodes <node_name>"
-echo "  python3 scripts/automation2.py"
+echo "  python3 scripts/sim.py"
 echo ""

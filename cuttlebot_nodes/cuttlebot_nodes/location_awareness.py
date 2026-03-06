@@ -3,7 +3,7 @@ import math
 
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, qos_profile_sensor_data
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
 from std_msgs.msg import String
@@ -41,7 +41,7 @@ class LocationAwareness(Node):
             Odometry,
             '/odom',
             self.odom_callback,
-            10)
+            qos_profile_sensor_data)
 
         # display position
         self.timer = self.create_timer(1.0, self.print_location)
@@ -53,6 +53,7 @@ class LocationAwareness(Node):
         self.y = msg.pose.pose.position.y
         self.yaw = self.quaternion_to_yaw(msg.pose.pose.orientation)
         self.source = 'amcl'
+        self._publish_zone()
 
     def odom_callback(self, msg: Odometry):
         # use odometry if amcl data doesnt exist
@@ -65,17 +66,21 @@ class LocationAwareness(Node):
         self._publish_zone()
 
     def _compute_zone(self):
-        """Determine which zone the robot is in based on coordinates."""
+        """Determine which zone the robot is in based on coordinates.
+
+        World layout: divider at y=0 with gap at x in [-0.6, 0.6].
+        South half (y<0) is CENTER, north half has LEFT/RIGHT chambers.
+        """
         if self.x is None:
             return None
-        if self.y < 0.5:
+        if self.y < -0.3:
             return 'CENTER'
-        elif self.x < -1.0 and self.y > 0.5:
+        elif self.y > 0.5 and self.x < -0.8:
             return 'LEFT_CHAMBER'
-        elif self.x > 1.0 and self.y > 0.5:
+        elif self.y > 0.5 and self.x > 0.8:
             return 'RIGHT_CHAMBER'
         else:
-            return 'DIVIDER'
+            return 'GAP'
 
     def _publish_zone(self):
         zone = self._compute_zone()

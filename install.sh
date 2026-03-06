@@ -9,8 +9,8 @@
 #   chmod +x install.sh
 #   ./install.sh
 #
-# After install, run the automation launcher:
-#   python3 scripts/automation2.py
+# After install, run the simulation:
+#   python3 scripts/sim.py
 # ============================================================================
 set -eo pipefail
 
@@ -318,11 +318,10 @@ echo -e "    source setup.bash       ${C_DIM}# manual alternative${C_RESET}"
 echo ""
 echo -e "  ${C_DIM}Run nodes:${C_RESET}"
 echo "    ros2 run cuttlebot_nodes nav_to_pose"
-echo "    ros2 run cuttlebot_nodes turtlebot4_first_python_node"
 echo ""
-echo -e "  ${C_DIM}Launch full automation (opens multiple terminals):${C_RESET}"
+echo -e "  ${C_DIM}Launch simulation (Gazebo + Nav2 + experiment nodes):${C_RESET}"
 echo "    cd ${REPO_DIR}"
-echo "    python3 scripts/automation2.py"
+echo "    python3 scripts/sim.py"
 echo ""
 echo -e "  ${C_DIM}Rebuild after code changes:${C_RESET}"
 echo -e "    ./build.sh              ${C_DIM}# full rebuild${C_RESET}"

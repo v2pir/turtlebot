@@ -16,15 +16,13 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Add sim_gazebo to path for constants
-# use realpath to resolve symlinks from colcon build
-sys.path.insert(0, os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'cuttlefish_sim', 'sim_gazebo'))
+# compute repo root from source file location (works with --symlink-install)
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.realpath(__file__))))
+sys.path.insert(0, os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo'))
 from delayed_gratification import (
-    STATE_NAMES, STATES, DEAD_RWD, UNOBTAINABLE_RWD,
+    STATES, DEAD_RWD, UNOBTAINABLE_RWD,
 )
-
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RESULTS_FILE = os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo', 'results.json')
 OUTPUT_DIR = os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo', 'plots')
 
@@ -80,7 +78,6 @@ def plot_training(results):
     path = os.path.join(OUTPUT_DIR, 'training_curves.png')
     plt.savefig(path, dpi=150, bbox_inches='tight')
     print(f'Saved: {path}')
-    plt.show()
 
 
 def plot_testing(results):
@@ -122,13 +119,13 @@ def plot_testing(results):
     path = os.path.join(OUTPUT_DIR, 'delay_performance.png')
     plt.savefig(path, dpi=150, bbox_inches='tight')
     print(f'Saved: {path}')
-    plt.show()
 
 
 def main():
     results = load_results()
     plot_training(results)
     plot_testing(results)
+    plt.show()
     print('All plots generated.')
 
 

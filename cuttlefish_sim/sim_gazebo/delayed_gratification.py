@@ -35,7 +35,6 @@ UNOBTAINABLE_RWD = 0.0
 # Learning parameters
 ALPHA = 0.10
 BETA = 1.0
-GAMMA = 0.99
 
 # State labels for logging
 STATE_NAMES = ["EXPM_LR", "EXPM_RL", "CTRL_LR", "CTRL_RL"]
@@ -170,12 +169,3 @@ def is_correct(state, action):
         return action == RIGHT
     else:
         return action == LEFT
-
-
-def action_to_chamber(state, action):
-    """
-    Map a (state, action) pair to a physical chamber direction.
-
-    return: 'LEFT' or 'RIGHT' (the physical chamber the robot should go to)
-    """
-    return ACTION_NAMES[action]

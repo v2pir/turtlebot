@@ -1,32 +1,33 @@
 """
-state manager - orchestrator node for the expirement
+state manager - orchestrator node for the experiment
 
 phase 1: training (100 trials to learn)
 phase 2: testing (run 20 trials with physical navigation with TurtleBot4Navigator)
 
-subs to: /carl/zone, /carl/trial_result
-publishes to:  /carl/trial_cmd
+subs to: /carl/trial_result, /carl/zone
+publishes to: /carl/trial_cmd
 """
 
 import json
 import os
 import sys
+import threading
 import time
 
 import numpy as np
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
+from nav2_simple_commander.robot_navigator import TaskResult
 from turtlebot4_navigation.turtlebot4_navigator import TurtleBot4Directions, TurtleBot4Navigator
 
-# add sim_gazebo to path for the q-learning library
-# use realpath to resolve symlinks from colcon build
-sys.path.insert(0, os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'cuttlefish_sim', 'sim_gazebo'))
+# compute repo root from source file location (works with --symlink-install)
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.realpath(__file__))))
+sys.path.insert(0, os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo'))
 from delayed_gratification import (
-    prob_wait, ACTION_NAMES, STATE_NAMES,
-    LEFT, RIGHT, EXPM_LR, EXPM_RL, CTRL_LR, CTRL_RL,
-    DEAD_RWD, UNOBTAINABLE_RWD, STATES,
+    prob_wait, STATE_NAMES,
+    LEFT, DEAD_RWD, UNOBTAINABLE_RWD, STATES,
 )
 
 # coordinates in gazebo
@@ -34,16 +35,20 @@ NAV_CENTER = [0.0, -1.5]
 NAV_LEFT_CHAMBER = [-2.5, 1.5]
 NAV_RIGHT_CHAMBER = [2.5, 1.5]
 
-# expirement parameters
+# spawn position (must match sim.py)
+SPAWN_X = 0.0
+SPAWN_Y = -1.0
+SPAWN_YAW = 90.0  # degrees, facing +y = WEST in TurtleBot4Directions
+
+# experiment parameters
 TRAINING_TRIALS = 100
 TESTING_TRIALS_PER_DELAY = 20
 DELAYS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130]
 
 # results file
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RESULTS_FILE = os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo', 'results.json')
 
-# create state manager node
+
 class StateManager(Node):
     def __init__(self):
         super().__init__('state_manager')
@@ -58,9 +63,9 @@ class StateManager(Node):
             String, '/carl/zone', self.zone_callback, 10)
 
         # state
-        self.current_zone = None
         self.last_result = None
-        self.waiting_for_result = False
+        self._result_event = threading.Event()
+        self.current_zone = None
 
         # store results
         self.training_results = []
@@ -71,20 +76,19 @@ class StateManager(Node):
 
         self.get_logger().info('State manager started. Beginning experiment...')
 
-        # run experiment in a timer callback to not block the constructor
-        self.create_timer(2.0, self.run_experiment_once)
-        self.experiment_started = False
+        # run experiment in a background thread so the executor isn't blocked
+        self._experiment_thread = threading.Thread(
+            target=self._run_experiment, daemon=True)
+        self._experiment_thread.start()
+
+    def result_callback(self, msg: String):
+        self.last_result = json.loads(msg.data)
+        self._result_event.set()
 
     def zone_callback(self, msg: String):
         data = json.loads(msg.data)
-        self.current_zone = data['zone']
+        self.current_zone = data.get('zone')
 
-    # callback for trial results
-    def result_callback(self, msg: String):
-        self.last_result = json.loads(msg.data)
-        self.waiting_for_result = False
-
-    # run trial command and wait for result
     def send_trial_cmd(self, p_wait, forced_state=None):
         """Send a trial command to the brain node and wait for the result."""
         cmd = {'p_wait': p_wait}
@@ -92,44 +96,53 @@ class StateManager(Node):
             cmd['state'] = forced_state
 
         self.last_result = None
-        self.waiting_for_result = True
+        self._result_event.clear()
 
-        # publish command
         msg = String()
         msg.data = json.dumps(cmd)
         self.cmd_pub.publish(msg)
 
-        # spin until we get a result (with timeout)
-        timeout = time.time() + 10.0
-        while self.waiting_for_result and time.time() < timeout:
-            rclpy.spin_once(self, timeout_sec=0.1)
-
-        if self.last_result is None:
+        # wait for result via threading event (no recursive spinning needed)
+        if not self._result_event.wait(timeout=10.0):
             self.get_logger().error('Timed out waiting for brain response!')
             return None
 
         return self.last_result
 
-    # navigate to a location
     def navigate_to(self, coords, label):
-        """navigate the robot to a position and wait for arrival"""
+        """Navigate the robot to a position and wait for arrival."""
         self.get_logger().info(f'Navigating to {label} ({coords[0]:.1f}, {coords[1]:.1f})')
 
         goal = self.navigator.getPoseStamped(coords, TurtleBot4Directions.NORTH)
         self.navigator.startToPose(goal)
 
-        self.get_logger().info(f'Arrived at {label}')
+        result = self.navigator.getResult()
+        if result == TaskResult.SUCCEEDED:
+            self.get_logger().info(f'Arrived at {label}')
+            if self.current_zone:
+                self.get_logger().info(f'  Zone: {self.current_zone}')
+        else:
+            self.get_logger().warn(f'Navigation to {label} failed (status={result})')
 
-    # run the full experiment
-    def run_experiment_once(self):
-        
-        """called once by timer, then runs the full experiment."""
-        if self.experiment_started:
-            return
-        self.experiment_started = True
+        return result == TaskResult.SUCCEEDED
+
+    def _run_experiment(self):
+        """Runs in a background thread. Waits for Nav2, then runs full experiment."""
+        # brief sleep to let the executor start spinning
+        time.sleep(2.0)
+
+        # set initial pose so AMCL knows where the robot is
+        self.get_logger().info('Setting initial pose...')
+        initial_pose = self.navigator.getPoseStamped(
+            [SPAWN_X, SPAWN_Y], SPAWN_YAW)
+        self.navigator.setInitialPose(initial_pose)
 
         self.get_logger().info('Waiting for Nav2 to become active...')
         self.navigator.waitUntilNav2Active()
+
+        # undock before navigating (TurtleBot4 spawns on dock)
+        self.get_logger().info('Undocking...')
+        self.navigator.undock()
 
         self.run_training_phase()
         self.run_testing_phase()
@@ -137,7 +150,7 @@ class StateManager(Node):
 
         self.get_logger().info('Experiment complete!')
 
-    # phase 1: training with no navigation, basically just learn the state labels
+    # phase 1: training with no navigation, just learn the state labels
     def run_training_phase(self):
         self.get_logger().info(
             f'=== TRAINING PHASE: {TRAINING_TRIALS} trials ===')
@@ -145,21 +158,17 @@ class StateManager(Node):
         state_total = np.zeros(STATES)
         state_hits = np.zeros(STATES)
 
-        # run training trials with no delay (learn which state is which)
         for t in range(TRAINING_TRIALS):
             result = self.send_trial_cmd(p_wait=1.0)
             if result is None:
                 continue
 
-            # record result
             s = result['state']
             state_total[s] += 1
             state_hits[s] += int(result['correct'])
 
-            # store for later analysis
             self.training_results.append(result)
 
-            # log progress every 25 trials
             if (t + 1) % 25 == 0:
                 pcts = []
                 for si in range(STATES):
@@ -172,7 +181,6 @@ class StateManager(Node):
 
     # phase 2: testing with physical navigation and varying delays
     def run_testing_phase(self):
-
         self.get_logger().info(
             f'=== TESTING PHASE: {len(DELAYS)} delays x {TESTING_TRIALS_PER_DELAY} trials ===')
 
@@ -227,7 +235,6 @@ class StateManager(Node):
 
         self.get_logger().info('Testing phase complete.')
 
-    # save results to json for plotting
     def save_results(self):
         """Save all results to a JSON file for later plotting."""
         data = {
