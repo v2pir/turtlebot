@@ -9,6 +9,8 @@ WORLDS_DIR = os.path.join(REPO_ROOT, "cuttlefish_sim", "sim_gazebo", "worlds")
 LAUNCH_DIR = os.path.join(REPO_ROOT, "cuttlefish_sim", "sim_gazebo", "launch")
 MAP_FILE = os.path.join(REPO_ROOT, "maps", "cuttlebot_world.yaml")
 
+TELEOP = "--teleop" in sys.argv
+
 WORLD_NAME = "cuttlebot_world"
 
 # spawn position: center-south of the room, facing +y (toward divider gap)
@@ -36,8 +38,20 @@ NODES = [
      "--ros-args", "-p", "use_sim_time:=true"],
 ]
 
-# takes like 15 seconds for gazebo and nav2 to run lets assume
 GAZEBO_STARTUP_DELAY = 15
+
+
+def wait_for_topic(topic, timeout=120):
+    """Poll until a ROS topic exists, meaning the robot is ready."""
+    start = time.time()
+    while time.time() - start < timeout:
+        result = subprocess.run(
+            ["ros2", "topic", "list"],
+            capture_output=True, text=True, timeout=10)
+        if topic in result.stdout.splitlines():
+            return True
+        time.sleep(3)
+    return False
 
 
 def main():
@@ -55,13 +69,14 @@ def main():
         print(f"{YELLOW}symlinking world into {system_worlds}...{RESET}")
         subprocess.run(["sudo", "ln", "-sf", world_sdf, link_path], check=True)
 
-    # launch gazebo with our custom launch file, localization, and nav2
+    # teleop mode: keep localization (so the map loads in RViz) but skip nav2
+    # (its controller_server fights teleop for cmd_vel)
     gazebo_cmd = [
         "ros2", "launch", launch_file,
         f"world:={WORLD_NAME}",
         "localization:=true",
         f"map:={MAP_FILE}",
-        "nav2:=true",
+        f"nav2:={'false' if TELEOP else 'true'}",
         "rviz:=true",
         f"y:={SPAWN_Y}",
         f"yaw:={SPAWN_YAW}",
@@ -72,15 +87,27 @@ def main():
     print()
 
     processes = []
+    gz_log = None
 
     try:
-        # launch gazebo + nav2 + rviz
-        print(f"{CYAN}[gazebo]{RESET} starting gazebo + nav2 + rviz...")
-        gz_proc = subprocess.Popen(gazebo_cmd)
+        mode = "teleop" if TELEOP else "experiment"
+        print(f"{CYAN}[gazebo]{RESET} starting gazebo + rviz ({mode} mode)...")
+        if TELEOP:
+            gz_log = open("/tmp/cuttlebot_gazebo.log", "w")
+            print(f"{DIM}  gazebo output → /tmp/cuttlebot_gazebo.log{RESET}")
+            gz_proc = subprocess.Popen(gazebo_cmd, stdout=gz_log, stderr=gz_log)
+        else:
+            gz_proc = subprocess.Popen(gazebo_cmd)
         processes.append(("gazebo", gz_proc))
 
-        print(f"{YELLOW}[wait]{RESET} waiting {GAZEBO_STARTUP_DELAY}s for gazebo and nav2 to start...")
-        time.sleep(GAZEBO_STARTUP_DELAY)
+        if TELEOP:
+            print(f"{YELLOW}[wait]{RESET} waiting for robot to load (checking for /cmd_vel topic)...")
+            if not wait_for_topic("/cmd_vel"):
+                print(f"{RED}[error]{RESET} timed out waiting for robot", file=sys.stderr)
+                sys.exit(1)
+        else:
+            print(f"{YELLOW}[wait]{RESET} waiting {GAZEBO_STARTUP_DELAY}s for gazebo to start...")
+            time.sleep(GAZEBO_STARTUP_DELAY)
 
         # check that Gazebo is still running
         if gz_proc.poll() is not None:
@@ -89,24 +116,64 @@ def main():
 
         print(f"{GREEN}[ready]{RESET} gazebo is running\n")
 
-        # launch experiment nodes
-        node_colors = {
-            "location_awareness": BLUE,
-            "brain_node": MAGENTA,
-            "state_manager": GREEN,
-        }
-        for cmd in NODES:
-            name = cmd[3]  # executable name (e.g. "brain_node")
-            color = node_colors.get(name, CYAN)
-            print(f"{color}[{name}]{RESET} launching: {' '.join(cmd)}")
-            proc = subprocess.Popen(cmd)
-            processes.append((name, proc))
-            time.sleep(1)  # wait after 1 node is started before launching the next one
+        if TELEOP:
+            print(f"{MAGENTA}{BOLD}teleop mode{RESET}\n")
 
-        print(f"\n{GREEN}{BOLD}all nodes launched. cntrl+c to stop everything.{RESET}\n")
+            # undock the robot — Create3 ignores cmd_vel while docked
+            print(f"{YELLOW}[undock]{RESET} undocking robot...")
+            try:
+                subprocess.run(
+                    ["ros2", "action", "send_goal", "/undock",
+                     "irobot_create_msgs/action/Undock", "{}"],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                    timeout=60)
+                time.sleep(2)
+                print(f"{GREEN}[undock]{RESET} done\n")
+            except subprocess.TimeoutExpired:
+                print(f"{YELLOW}[undock]{RESET} timed out — continuing anyway\n")
 
-        # wait for gazebo to exit (basically just cntrl c)
-        gz_proc.wait()
+            print(f"{BOLD}controls:{RESET}")
+            print()
+            print(f"        {BOLD}u{RESET}    {BOLD}i{RESET}    {BOLD}o{RESET}")
+            print(f"        {BOLD}j{RESET}    {BOLD}k{RESET}    {BOLD}l{RESET}")
+            print(f"        {BOLD}m{RESET}    {BOLD},{RESET}    {BOLD}.{RESET}")
+            print()
+            print(f"  {BOLD}i{RESET} = forward    {BOLD},{RESET} = backward")
+            print(f"  {BOLD}j{RESET} = turn left  {BOLD}l{RESET} = turn right")
+            print(f"  {BOLD}u{RESET} = fwd+left   {BOLD}o{RESET} = fwd+right")
+            print(f"  {BOLD}m{RESET} = bwd+left   {BOLD}.{RESET} = bwd+right")
+            print(f"  {BOLD}k{RESET} = stop")
+            print(f"  {BOLD}q{RESET}/{BOLD}z{RESET} = increase/decrease max speed")
+            print(f"  {BOLD}ctrl+c{RESET} = quit\n")
+
+            # run teleop directly in this terminal (reads keypresses from stdin)
+            # stamped:=true because Create3's motion_control expects TwistStamped
+            teleop_proc = subprocess.Popen(
+                ["ros2", "run", "teleop_twist_keyboard",
+                 "teleop_twist_keyboard",
+                 "--ros-args", "-p", "use_sim_time:=true",
+                 "-p", "stamped:=true"])
+            processes.append(("teleop", teleop_proc))
+            teleop_proc.wait()
+        else:
+            # launch experiment nodes
+            node_colors = {
+                "location_awareness": BLUE,
+                "brain_node": MAGENTA,
+                "state_manager": GREEN,
+            }
+            for cmd in NODES:
+                name = cmd[3]  # executable name (e.g. "brain_node")
+                color = node_colors.get(name, CYAN)
+                print(f"{color}[{name}]{RESET} launching: {' '.join(cmd)}")
+                proc = subprocess.Popen(cmd)
+                processes.append((name, proc))
+                time.sleep(1)
+
+            print(f"\n{GREEN}{BOLD}all nodes launched. ctrl+c to stop everything.{RESET}\n")
+
+        if not TELEOP:
+            gz_proc.wait()
 
     except KeyboardInterrupt:
         print(f"\n{YELLOW}[shutdown]{RESET} shutting down all processes...")
@@ -126,6 +193,8 @@ def main():
                 print(f"{RED}  force-killing {name}{RESET}")
                 proc.kill()
 
+        if gz_log:
+            gz_log.close()
         print(f"{DIM}simulation stopped.{RESET}")
 
 
