@@ -4,8 +4,8 @@ state manager - orchestrator node for the experiment
 phase 1: training (100 trials to learn)
 phase 2: testing (run 20 trials with physical navigation with TurtleBot4Navigator)
 
-subs to: /carl/trial_result, /carl/zone
-publishes to: /carl/trial_cmd
+subs to: /carl/trial_result, /carl/zone, /carl/vision_status
+publishes to: /carl/trial_cmd, /carl/vision_cmd
 """
 
 import json
@@ -34,6 +34,7 @@ from delayed_gratification import (
 NAV_CENTER = [0.0, -1.5]
 NAV_LEFT_CHAMBER = [-2.5, 1.5]
 NAV_RIGHT_CHAMBER = [2.5, 1.5]
+NAV_GAP_APPROACH = [0.0, 0.3]
 
 # spawn position (must match sim.py)
 SPAWN_X = 0.0
@@ -55,6 +56,8 @@ class StateManager(Node):
 
         # pubs and subs
         self.cmd_pub = self.create_publisher(String, '/carl/trial_cmd', 10)
+        self.vision_cmd_pub = self.create_publisher(String, '/carl/vision_cmd', 10)
+        self.confirm_pub = self.create_publisher(String, '/carl/reward_confirm', 10)
 
         self.result_sub = self.create_subscription(
             String, '/carl/trial_result', self.result_callback, 10)
@@ -62,10 +65,17 @@ class StateManager(Node):
         self.zone_sub = self.create_subscription(
             String, '/carl/zone', self.zone_callback, 10)
 
+        self.vision_status_sub = self.create_subscription(
+            String, '/carl/vision_status', self.vision_status_callback, 10)
+
         # state
         self.last_result = None
         self._result_event = threading.Event()
         self.current_zone = None
+
+        # vision state
+        self._vision_status = None
+        self._vision_event = threading.Event()
 
         # store results
         self.training_results = []
@@ -89,11 +99,48 @@ class StateManager(Node):
         data = json.loads(msg.data)
         self.current_zone = data.get('zone')
 
-    def send_trial_cmd(self, p_wait, forced_state=None):
+    def vision_status_callback(self, msg: String):
+        self._vision_status = json.loads(msg.data)
+        self._vision_event.set()
+
+    def send_vision_cmd(self, cmd_dict):
+        msg = String()
+        msg.data = json.dumps(cmd_dict)
+        self.vision_cmd_pub.publish(msg)
+
+    def vision_scan(self, timeout=60.0):
+        """Ask vision node to scan for both colors. Returns True if both seen."""
+        self._vision_status = None
+        self._vision_event.clear()
+        self.send_vision_cmd({'action': 'scan'})
+
+        if not self._vision_event.wait(timeout=timeout):
+            self.get_logger().warn('Vision scan timed out')
+            self.send_vision_cmd({'action': 'stop'})
+            return False
+
+        return self._vision_status.get('status') == 'both_seen'
+
+    def vision_seek(self, target_color, timeout=90.0):
+        """Ask vision node to track a color. Returns True if target reached."""
+        self._vision_status = None
+        self._vision_event.clear()
+        self.send_vision_cmd({'action': 'seek', 'color': target_color})
+
+        if not self._vision_event.wait(timeout=timeout):
+            self.get_logger().warn(f'Vision seek timed out for {target_color}')
+            self.send_vision_cmd({'action': 'stop'})
+            return False
+
+        return self._vision_status.get('status') == 'reached'
+
+    def send_trial_cmd(self, p_wait, forced_state=None, defer_update=False):
         """Send a trial command to the brain node and wait for the result."""
         cmd = {'p_wait': p_wait}
         if forced_state is not None:
             cmd['state'] = forced_state
+        if defer_update:
+            cmd['defer_update'] = True
 
         self.last_result = None
         self._result_event.clear()
@@ -179,7 +226,7 @@ class StateManager(Node):
 
         self.get_logger().info('Training phase complete.')
 
-    # phase 2: testing with physical navigation and varying delays
+    # phase 2: testing with hybrid Nav2 + vision navigation
     def run_testing_phase(self):
         self.get_logger().info(
             f'=== TESTING PHASE: {len(DELAYS)} delays x {TESTING_TRIALS_PER_DELAY} trials ===')
@@ -198,19 +245,44 @@ class StateManager(Node):
             ctrl_correct = 0
 
             for t in range(TESTING_TRIALS_PER_DELAY):
-                result = self.send_trial_cmd(p_wait=p_w)
+                # nav2 to the gap approach point (just past the divider)
+                self.navigate_to(NAV_GAP_APPROACH, 'GAP_APPROACH')
+
+                # vision: scan for both colors
+                if not self.vision_scan():
+                    self.get_logger().warn('Vision scan failed, skipping trial')
+                    self.navigate_to(NAV_CENTER, 'CENTER')
+                    continue
+
+                # brain decides (defer Q-update until reward is confirmed)
+                result = self.send_trial_cmd(p_wait=p_w, defer_update=True)
                 if result is None:
+                    self.navigate_to(NAV_CENTER, 'CENTER')
                     continue
 
                 action = result['action']
                 is_exp = result['is_experimental']
                 reward = result['reward']
 
-                # nav to chosen chamber
-                if action == LEFT:
-                    self.navigate_to(NAV_LEFT_CHAMBER, 'LEFT_CHAMBER')
-                else:
-                    self.navigate_to(NAV_RIGHT_CHAMBER, 'RIGHT_CHAMBER')
+                # vision: seek the chosen chamber by color
+                target_color = 'yellow' if action == LEFT else 'red'
+                reached = self.vision_seek(target_color)
+                self.get_logger().info(
+                    f'Vision seek {target_color}: '
+                    f'{"reached" if reached else "not reached"}')
+
+                # confirm reward: gate by whether robot reached the target
+                actual_reward = reward if reached else 0.0
+                confirm = String()
+                confirm.data = json.dumps({
+                    'state': result['state'],
+                    'action': action,
+                    'reward': actual_reward,
+                })
+                self.confirm_pub.publish(confirm)
+                reward = actual_reward
+                result['reward'] = actual_reward
+                result['reached'] = reached
 
                 # record result
                 if is_exp:

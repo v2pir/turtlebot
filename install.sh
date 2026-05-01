@@ -142,6 +142,7 @@ TB4_PKGS=(
     ros-${ROS_DISTRO}-turtlebot4-viz
     ros-${ROS_DISTRO}-turtlebot4-msgs
     ros-${ROS_DISTRO}-irobot-create-msgs
+    ros-${ROS_DISTRO}-cv-bridge
 )
 if all_installed "${TB4_PKGS[@]}"; then
     skip "TurtleBot4 packages already installed"
@@ -212,11 +213,11 @@ fi
 # ---- 8. Python dependencies ------------------------------------------------
 section "$C_PY" "8/13  PYTHON DEPENDENCIES"
 
-if all_pip_installed numpy scipy matplotlib; then
-    skip "numpy, scipy, matplotlib already installed"
+if all_pip_installed numpy scipy matplotlib cv2; then
+    skip "numpy, scipy, matplotlib, opencv already installed"
 else
-    info "Installing numpy, scipy, matplotlib..."
-    pip3 install --user numpy scipy matplotlib
+    info "Installing numpy, scipy, matplotlib, opencv..."
+    pip3 install --user numpy scipy matplotlib opencv-python
     ok "Python deps installed"
 fi
 

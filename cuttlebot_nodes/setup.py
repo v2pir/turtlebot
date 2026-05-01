@@ -27,6 +27,7 @@ setup(
             'location_awareness = cuttlebot_nodes.location_awareness:main',
             'brain_node = cuttlebot_nodes.brain_node:main',
             'state_manager = cuttlebot_nodes.state_manager:main',
+            'vision_node = cuttlebot_nodes.vision_node:main',
             'plot_results = cuttlebot_nodes.plot_results:main',
             'nav_to_pose = cuttlebot_nodes.nav_to_pose:main',
         ],

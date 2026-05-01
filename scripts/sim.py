@@ -28,11 +28,13 @@ BOLD = "\033[1m"
 DIM = "\033[2m"
 RESET = "\033[0m"
 
-# expirement nodes to launch after gazebo is up
+# experiment nodes to launch after gazebo is up
 NODES = [
     ["ros2", "run", "cuttlebot_nodes", "location_awareness",
      "--ros-args", "-p", "use_sim_time:=true"],
     ["ros2", "run", "cuttlebot_nodes", "brain_node",
+     "--ros-args", "-p", "use_sim_time:=true"],
+    ["ros2", "run", "cuttlebot_nodes", "vision_node",
      "--ros-args", "-p", "use_sim_time:=true"],
     ["ros2", "run", "cuttlebot_nodes", "state_manager",
      "--ros-args", "-p", "use_sim_time:=true"],
@@ -160,6 +162,7 @@ def main():
             node_colors = {
                 "location_awareness": BLUE,
                 "brain_node": MAGENTA,
+                "vision_node": YELLOW,
                 "state_manager": GREEN,
             }
             for cmd in NODES:

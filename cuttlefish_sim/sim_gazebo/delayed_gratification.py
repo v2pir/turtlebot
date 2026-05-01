@@ -106,7 +106,7 @@ def action_select(q, beta):
     return len(q) - 1
 
 
-def run_trial(qtable, p_wait, forced_state=None):
+def run_trial(qtable, p_wait, forced_state=None, update=True):
     """
     Run a single delayed gratification trial.
 
@@ -152,7 +152,8 @@ def run_trial(qtable, p_wait, forced_state=None):
         rwd = DEAD_RWD if act == LEFT else UNOBTAINABLE_RWD
 
     # update q-table with actual reward
-    qtable.update(current_state, act, rwd)
+    if update:
+        qtable.update(current_state, act, rwd)
 
     is_experimental = current_state < CTRL_LR
 

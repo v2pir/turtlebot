@@ -177,28 +177,28 @@
       </link>
     </model>
 
-    <!-- left chamber marker (blue) — flat on ground -->
+    <!-- left chamber marker (yellow = live shrimp) — vertical panel -->
     <model name="marker_left">
       <static>true</static>
-      <pose>-2.5 2.5 0.01 0 0 0</pose>
+      <pose>-2.5 2.5 0.3 0 0 0</pose>
       <link name="link">
         <visual name="visual">
-          <geometry><box><size>1.0 1.0 0.02</size></box></geometry>
+          <geometry><box><size>0.8 0.05 0.6</size></box></geometry>
           <material>
-            <ambient>0.1 0.3 0.9 1</ambient>
-            <diffuse>0.1 0.3 0.9 1</diffuse>
+            <ambient>0.9 0.9 0.1 1</ambient>
+            <diffuse>0.9 0.9 0.1 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- right chamber marker (red) — flat on ground -->
+    <!-- right chamber marker (red = dead shrimp) — vertical panel -->
     <model name="marker_right">
       <static>true</static>
-      <pose>2.5 2.5 0.01 0 0 0</pose>
+      <pose>2.5 2.5 0.3 0 0 0</pose>
       <link name="link">
         <visual name="visual">
-          <geometry><box><size>1.0 1.0 0.02</size></box></geometry>
+          <geometry><box><size>0.8 0.05 0.6</size></box></geometry>
           <material>
             <ambient>0.9 0.2 0.1 1</ambient>
             <diffuse>0.9 0.2 0.1 1</diffuse>
