@@ -2,6 +2,7 @@ import os
 import signal
 import subprocess
 import sys
+import threading
 import time
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -10,6 +11,7 @@ LAUNCH_DIR = os.path.join(REPO_ROOT, "cuttlefish_sim", "sim_gazebo", "launch")
 MAP_FILE = os.path.join(REPO_ROOT, "maps", "cuttlebot_world.yaml")
 
 TELEOP = "--teleop" in sys.argv
+TRAIN = "--train" in sys.argv
 
 WORLD_NAME = "cuttlebot_world"
 
@@ -29,15 +31,18 @@ DIM = "\033[2m"
 RESET = "\033[0m"
 
 # experiment nodes to launch after gazebo is up
+MODE = "train" if TRAIN else "test"
+
 NODES = [
     ["ros2", "run", "cuttlebot_nodes", "location_awareness",
      "--ros-args", "-p", "use_sim_time:=true"],
-    ["ros2", "run", "cuttlebot_nodes", "brain_node",
-     "--ros-args", "-p", "use_sim_time:=true"],
     ["ros2", "run", "cuttlebot_nodes", "vision_node",
      "--ros-args", "-p", "use_sim_time:=true"],
-    ["ros2", "run", "cuttlebot_nodes", "state_manager",
+    ["ros2", "run", "cuttlebot_nodes", "brain_node",
      "--ros-args", "-p", "use_sim_time:=true"],
+    ["ros2", "run", "cuttlebot_nodes", "state_manager",
+     "--ros-args", "-p", "use_sim_time:=true",
+     "-p", f"mode:={MODE}"],
 ]
 
 GAZEBO_STARTUP_DELAY = 15
@@ -71,6 +76,22 @@ def main():
         print(f"{YELLOW}symlinking world into {system_worlds}...{RESET}")
         subprocess.run(["sudo", "ln", "-sf", world_sdf, link_path], check=True)
 
+    # patch diffdrive cmd_vel_timeout (baked into URDF, only read at startup)
+    control_yaml = "/opt/ros/jazzy/share/irobot_create_control/config/control.yaml"
+    try:
+        with open(control_yaml) as f:
+            content = f.read()
+        if "cmd_vel_timeout: 0.5" in content:
+            print(f"{YELLOW}patching cmd_vel_timeout in {control_yaml}...{RESET}")
+            patched = content.replace("cmd_vel_timeout: 0.5", "cmd_vel_timeout: 5.0")
+            subprocess.run(
+                ["sudo", "tee", control_yaml],
+                input=patched.encode(), stdout=subprocess.DEVNULL, check=True)
+            print(f"{GREEN}cmd_vel_timeout set to 5.0s{RESET}")
+    except (OSError, subprocess.CalledProcessError) as e:
+        print(f"{RED}[error]{RESET} failed to patch cmd_vel_timeout: {e}",
+              file=sys.stderr)
+
     # teleop mode: keep localization (so the map loads in RViz) but skip nav2
     # (its controller_server fights teleop for cmd_vel)
     gazebo_cmd = [
@@ -92,7 +113,7 @@ def main():
     gz_log = None
 
     try:
-        mode = "teleop" if TELEOP else "experiment"
+        mode = "teleop" if TELEOP else ("train" if TRAIN else "test")
         print(f"{CYAN}[gazebo]{RESET} starting gazebo + rviz ({mode} mode)...")
         if TELEOP:
             gz_log = open("/tmp/cuttlebot_gazebo.log", "w")

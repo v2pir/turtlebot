@@ -1,7 +1,7 @@
 """
 brain node — q-learning decision maker for the delayed gratification experiment.
 
-subs to /carl/trial_cmd (trial comamands)
+subs to /carl/trial_cmd (trial commands)
 publishes to /carl/trial_result (action and reward)
 """
 
@@ -13,22 +13,22 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 
-# compute repo root from source file location (works with --symlink-install)
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.realpath(__file__))))
 sys.path.insert(0, os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo'))
 from delayed_gratification import (
     QTable, run_trial, is_correct,
-    STATE_NAMES, ACTION_NAMES,
+    STATE_NAMES, ACTION_NAMES, STATES, ACTIONS,
 )
 
-# create brain node class
+
 class BrainNode(Node):
     def __init__(self):
         super().__init__('brain_node')
 
         self.qtable = QTable()
         self.trial_count = 0
+        self.confirm_count = 0
 
         self.result_pub = self.create_publisher(String, '/carl/trial_result', 10)
 
@@ -38,35 +38,53 @@ class BrainNode(Node):
         self.confirm_sub = self.create_subscription(
             String, '/carl/reward_confirm', self.confirm_callback, 10)
 
-        self.get_logger().info('Brain node started. Waiting for trial commands...')
+        self._log('init', f'Brain node started. Q-table shape: {STATES}x{ACTIONS}')
+        self._log('init', f'Initial Q-table:')
+        self._print_qtable('init')
+        self._log('init', 'Waiting for trial commands on /carl/trial_cmd...')
 
-    # callback for trial commands
+    def _log(self, tag, msg):
+        self.get_logger().info(f'[brain:{tag}] {msg}')
+
+    def _warn(self, tag, msg):
+        self.get_logger().warn(f'[brain:{tag}] {msg}')
+
+    def _print_qtable(self, tag):
+        for s in range(STATES):
+            row = [self.qtable.table[s][a] for a in range(ACTIONS)]
+            self._log(tag, f'  {STATE_NAMES[s]}: L={row[0]:.4f} R={row[1]:.4f}')
+
     def trial_callback(self, msg: String):
         cmd = json.loads(msg.data)
         p_wait = cmd.get('p_wait', 1.0)
         forced_state = cmd.get('state', None)
         defer = cmd.get('defer_update', False)
 
-        # get reward and action from trial
+        self._log('trial', f'Received cmd: p_wait={p_wait} '
+                  f'forced_state={forced_state} defer_update={defer}')
+
         rwd, is_exp, state, action = run_trial(
             self.qtable, p_wait, forced_state=forced_state,
             update=not defer)
 
-        # increase trial count and check if action was correct
         self.trial_count += 1
         correct = is_correct(state, action)
 
-        # log
-        self.get_logger().info(
-            f'Trial {self.trial_count}: state={STATE_NAMES[state]} '
-            f'action={ACTION_NAMES[action]} reward={rwd:.1f} '
-            f'correct={correct} experimental={is_exp}')
+        self._log('trial', f'Trial #{self.trial_count}: '
+                  f'state={STATE_NAMES[state]}({state}) '
+                  f'action={ACTION_NAMES[action]}({action}) '
+                  f'reward={rwd:.1f} correct={correct} '
+                  f'experimental={is_exp} deferred={defer}')
 
-        # log q-table every 25 trials
+        if not defer:
+            self._log('trial', f'Q-table updated immediately (not deferred)')
+        else:
+            self._log('trial', f'Q-table update DEFERRED — waiting for /carl/reward_confirm')
+
         if self.trial_count % 25 == 0:
-            self.qtable.print_table()
+            self._log('qtable', f'Q-table after {self.trial_count} trials:')
+            self._print_qtable('qtable')
 
-        # the result
         result = {
             'state': state,
             'action': action,
@@ -76,21 +94,29 @@ class BrainNode(Node):
             'trial': self.trial_count,
         }
 
-        # publish result
         result_msg = String()
         result_msg.data = json.dumps(result)
         self.result_pub.publish(result_msg)
-
+        self._log('trial', f'Published result to /carl/trial_result')
 
     def confirm_callback(self, msg: String):
         cmd = json.loads(msg.data)
         state = cmd['state']
         action = cmd['action']
         reward = cmd['reward']
+
+        self.confirm_count += 1
+        self._log('confirm', f'Confirm #{self.confirm_count}: '
+                  f'state={STATE_NAMES[state]}({state}) '
+                  f'action={ACTION_NAMES[action]}({action}) '
+                  f'reward={reward:.1f}')
+
+        old_val = self.qtable.table[state][action]
         self.qtable.update(state, action, reward)
-        self.get_logger().info(
-            f'Reward confirmed: state={STATE_NAMES[state]} '
-            f'action={ACTION_NAMES[action]} reward={reward:.1f}')
+        new_val = self.qtable.table[state][action]
+
+        self._log('confirm', f'Q[{STATE_NAMES[state]}][{ACTION_NAMES[action]}]: '
+                  f'{old_val:.4f} -> {new_val:.4f} (delta={new_val - old_val:.4f})')
 
 
 def main():

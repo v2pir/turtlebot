@@ -36,7 +36,7 @@ FORWARD_SPEED = 0.08
 SLOW_FORWARD_SPEED = 0.04
 
 SEEK_TIMEOUT_SEC = 60.0
-LOG_INTERVAL_SEC = 5.0
+LOG_INTERVAL_SEC = 2.0
 
 
 class VisionNode(Node):
@@ -56,6 +56,8 @@ class VisionNode(Node):
         self.scan_direction = 1
         self.last_scan_switch = 0.0
         self.last_log_time = 0.0
+        self.frame_count = 0
+        self.cmd_count = 0
 
         self.red_center = None
         self.red_area = 0
@@ -73,11 +75,17 @@ class VisionNode(Node):
         self.status_pub = self.create_publisher(
             String, '/carl/vision_status', 10)
         self.cmd_vel_pub = self.create_publisher(
-            TwistStamped, '/cmd_vel', 10)
+            TwistStamped, '/diffdrive_controller/cmd_vel', 10)
 
         self.control_timer = self.create_timer(0.1, self.control_loop)
 
-        self.get_logger().info(f'Vision node started. Camera: {camera_topic}')
+        self._log('init', f'Vision node started. Camera: {camera_topic}')
+
+    def _log(self, tag, msg):
+        self.get_logger().info(f'[vision:{tag}] {msg}')
+
+    def _warn(self, tag, msg):
+        self.get_logger().warn(f'[vision:{tag}] {msg}')
 
     def _largest_contour(self, mask):
         contours, _ = cv2.findContours(
@@ -96,6 +104,7 @@ class VisionNode(Node):
         return (cx, cy), area
 
     def image_callback(self, msg):
+        self.frame_count += 1
         frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -108,6 +117,12 @@ class VisionNode(Node):
         self.red_center, self.red_area = self._largest_contour(red_mask)
         self.yellow_center, self.yellow_area = self._largest_contour(yellow_mask)
         self.image_width = frame.shape[1]
+
+        if self.frame_count == 1:
+            self._log('camera', f'First frame received: {frame.shape[1]}x{frame.shape[0]}')
+        elif self.frame_count % 100 == 0:
+            self._log('camera', f'Frame #{self.frame_count} | '
+                      f'red_area={self.red_area:.0f} yellow_area={self.yellow_area:.0f}')
 
         det = {
             'red_center': list(self.red_center) if self.red_center else None,
@@ -122,6 +137,7 @@ class VisionNode(Node):
     def cmd_callback(self, msg):
         cmd = json.loads(msg.data)
         action = cmd.get('action')
+        self._log('cmd', f'Received command: {cmd}')
 
         if action == 'scan':
             self.mode = 'scan'
@@ -131,20 +147,21 @@ class VisionNode(Node):
             self.mode_start_time = time.time()
             self.last_scan_switch = time.time()
             self.last_log_time = 0.0
-            self.get_logger().info('Vision: scan mode')
+            self._log('cmd', f'Entering SCAN mode. frame_count={self.frame_count} '
+                      f'image_width={self.image_width}')
 
         elif action == 'seek':
             self.target_color = cmd.get('color')
             self.mode = 'seek'
             self.mode_start_time = time.time()
             self.last_log_time = 0.0
-            self.get_logger().info(f'Vision: seek {self.target_color}')
+            self._log('cmd', f'Entering SEEK mode for {self.target_color}')
 
         elif action == 'stop':
+            self._log('cmd', f'STOP received (was in {self.mode} mode)')
             self.mode = 'idle'
             self._stop()
             self._publish_status('idle')
-            self.get_logger().info('Vision: stopped')
 
     def control_loop(self):
         if self.mode == 'idle':
@@ -157,28 +174,37 @@ class VisionNode(Node):
 
     def _do_scan(self, now):
         if self.red_center is not None and self.red_area >= MIN_COLOR_AREA:
+            if not self.saw_red:
+                self._log('scan', f'RED detected! area={self.red_area:.0f} '
+                          f'center={self.red_center}')
             self.saw_red = True
         if self.yellow_center is not None and self.yellow_area >= MIN_COLOR_AREA:
+            if not self.saw_yellow:
+                self._log('scan', f'YELLOW detected! area={self.yellow_area:.0f} '
+                          f'center={self.yellow_center}')
             self.saw_yellow = True
 
         if now - self.last_log_time >= LOG_INTERVAL_SEC:
-            self.get_logger().info(
-                f'[Scan] red={self.red_area:.0f} yellow={self.yellow_area:.0f} '
-                f'saw_red={self.saw_red} saw_yellow={self.saw_yellow}')
+            elapsed = now - self.mode_start_time
+            self._log('scan', f'[{elapsed:.1f}s] red_area={self.red_area:.0f} '
+                      f'yellow_area={self.yellow_area:.0f} '
+                      f'saw_red={self.saw_red} saw_yellow={self.saw_yellow} '
+                      f'dir={self.scan_direction}')
             self.last_log_time = now
 
         if self.saw_red and self.saw_yellow:
             self._stop()
             self.mode = 'idle'
             self._publish_status('both_seen')
-            self.get_logger().info('[Scan] Both colors observed')
+            self._log('scan', 'BOTH colors seen! Publishing both_seen.')
             return
 
         if now - self.mode_start_time > SCAN_TIMEOUT_SEC:
             self._stop()
             self.mode = 'idle'
             self._publish_status('scan_timeout')
-            self.get_logger().warn('[Scan] Timeout')
+            self._warn('scan', f'TIMEOUT after {SCAN_TIMEOUT_SEC}s. '
+                       f'saw_red={self.saw_red} saw_yellow={self.saw_yellow}')
             return
 
         if now - self.last_scan_switch > SCAN_SWITCH_SEC:
@@ -191,13 +217,18 @@ class VisionNode(Node):
 
     def _do_seek(self, now):
         if self.image_width is None:
+            if now - self.last_log_time >= LOG_INTERVAL_SEC:
+                self._warn('seek', 'No image data yet (image_width is None)')
+                self.last_log_time = now
             return
 
         center, area = self._get_target()
 
         if center is None:
             if now - self.last_log_time >= LOG_INTERVAL_SEC:
-                self.get_logger().info(f'[Seek] Searching for {self.target_color}...')
+                elapsed = now - self.mode_start_time
+                self._log('seek', f'[{elapsed:.1f}s] Searching for {self.target_color}... '
+                          f'(not visible, turning at {SEARCH_TURN_SPEED} rad/s)')
                 self.last_log_time = now
             self._publish_cmd(0.0, SEARCH_TURN_SPEED)
             return
@@ -207,24 +238,25 @@ class VisionNode(Node):
         error = target_x - image_cx
 
         if now - self.last_log_time >= LOG_INTERVAL_SEC:
-            self.get_logger().info(
-                f'[Seek] {self.target_color} center={center} '
-                f'area={area:.0f} error={error}')
+            elapsed = now - self.mode_start_time
+            self._log('seek', f'[{elapsed:.1f}s] {self.target_color} '
+                      f'center={center} area={area:.0f} error={error} '
+                      f'threshold={TARGET_REACHED_AREA}')
             self.last_log_time = now
 
         if area >= TARGET_REACHED_AREA:
             self._stop()
             self.mode = 'idle'
             self._publish_status('reached', color=self.target_color)
-            self.get_logger().info(
-                f'[Seek] Reached {self.target_color} (area={area:.0f})')
+            self._log('seek', f'REACHED {self.target_color}! area={area:.0f} >= {TARGET_REACHED_AREA}')
             return
 
         if now - self.mode_start_time > SEEK_TIMEOUT_SEC:
             self._stop()
             self.mode = 'idle'
             self._publish_status('seek_timeout', color=self.target_color)
-            self.get_logger().warn(f'[Seek] Timeout for {self.target_color}')
+            self._warn('seek', f'TIMEOUT after {SEEK_TIMEOUT_SEC}s for {self.target_color} '
+                       f'(last area={area:.0f})')
             return
 
         angular_z = -TURN_GAIN * error
@@ -245,19 +277,25 @@ class VisionNode(Node):
         return None, 0
 
     def _publish_cmd(self, linear_x, angular_z):
+        self.cmd_count += 1
         cmd = TwistStamped()
         cmd.header.stamp = self.get_clock().now().to_msg()
         cmd.header.frame_id = 'base_link'
         cmd.twist.linear.x = linear_x
         cmd.twist.angular.z = angular_z
         self.cmd_vel_pub.publish(cmd)
+        if self.cmd_count <= 3 or self.cmd_count % 50 == 0:
+            self._log('vel', f'cmd_vel #{self.cmd_count}: '
+                      f'linear={linear_x:.3f} angular={angular_z:.3f}')
 
     def _stop(self):
+        self._log('vel', 'Publishing STOP (0, 0)')
         self._publish_cmd(0.0, 0.0)
 
     def _publish_status(self, status, **kwargs):
         data = {'status': status}
         data.update(kwargs)
+        self._log('status', f'Publishing status: {data}')
         msg = String()
         msg.data = json.dumps(data)
         self.status_pub.publish(msg)

@@ -1,0 +1,125 @@
+01:34:01 [INFO] Creating TurtleBot4Navigator...
+01:34:03 [INFO] Setting navigator use_sim_time=True...
+01:34:03 [INFO] State manager initialized (mode=test)
+01:34:03 [INFO]   Q-table: [[3.588, 0.469], [0.41, 4.074]]
+01:34:03 [INFO]   SPAWN: x=0.0 y=-1.0 yaw=90.0
+01:34:03 [INFO]   NAV_HOME: [0.0, -1.5]
+01:34:03 [INFO]   DELAYS: [10, 20, 30, 40, 50, 60]
+01:34:03 [INFO]   Log file: /home/vansh/Downloads/CARL/turtlebot/state_manager.log
+01:34:03 [INFO] Experiment thread started, sleeping 2s for executor...
+01:34:05 [INFO] Setting initial pose: x=0.0 y=-1.0 yaw=90.0...
+01:34:05 [INFO] Initial pose set. Calling waitUntilNav2Active...
+01:34:05 [INFO] Waiting for Nav2...
+01:34:09 [INFO] Nav2 is active!
+01:34:09 [INFO] Undocking...
+01:34:41 [INFO] Undock complete.
+01:34:41 [INFO] === CMD_VEL DIAGNOSTICS ===
+01:34:43 [INFO] $ ros2 topic list
+01:34:43 [INFO]   /parameter_events
+01:34:43 [INFO]   /rosout
+01:34:44 [INFO] $ ros2 topic info /cmd_vel --verbose
+01:34:44 [INFO]   Type: geometry_msgs/msg/TwistStamped
+01:34:44 [INFO]   
+01:34:44 [INFO]   Publisher count: 1
+01:34:44 [INFO]   
+01:34:44 [INFO]   Node name: vision_node
+01:34:44 [INFO]   Node namespace: /
+01:34:44 [INFO]   Topic type: geometry_msgs/msg/TwistStamped
+01:34:44 [INFO]   Topic type hash: RIHS01_5f0fcd4f81d5d06ad9b4c4c63e3ea51b82d6ae4d0558f1d475229b1121db6f64
+01:34:44 [INFO]   Endpoint type: PUBLISHER
+01:34:44 [INFO]   GID: 01.0f.44.d0.2b.57.bb.b4.00.00.00.00.00.00.18.03
+01:34:44 [INFO]   QoS profile:
+01:34:44 [INFO]     Reliability: RELIABLE
+01:34:44 [INFO]     History (Depth): UNKNOWN
+01:34:44 [INFO]     Durability: VOLATILE
+01:34:44 [INFO]     Lifespan: Infinite
+01:34:44 [INFO]     Deadline: Infinite
+01:34:44 [INFO]     Liveliness: AUTOMATIC
+01:34:44 [INFO]     Liveliness lease duration: Infinite
+01:34:44 [INFO]   
+01:34:44 [INFO]   Subscription count: 0
+01:34:45 [INFO] $ ros2 topic info /diffdrive_controller/cmd_vel --verbose
+01:34:45 [INFO]   Unknown topic '/diffdrive_controller/cmd_vel'
+01:34:46 [INFO] $ ros2 topic info /cmd_vel_smoothed --verbose
+01:34:46 [INFO]   Unknown topic '/cmd_vel_smoothed'
+01:34:52 [INFO] $ ros2 param get /controller_manager diffdrive_controller.cmd_vel_timeout
+01:34:52 [INFO]   Parameter not set.
+01:34:52 [INFO] === END DIAGNOSTICS ===
+01:34:52 [INFO] Waiting for /map topic (timeout=20.0s)...
+01:34:52 [INFO] /map topic detected.
+01:34:52 [INFO] Q-table:
+01:34:52 [INFO]   EXPM_LR: L=3.588 R=0.469
+01:34:52 [INFO]   EXPM_RL: L=0.410 R=4.074
+01:34:52 [INFO] ===== DELAY TEST: 6 delays x 5 trials =====
+01:34:52 [INFO] --- Delay 10s (p_wait=0.997) ---
+01:34:52 [INFO] [Delay 10] Trial 1/5
+01:34:52 [INFO] ===== Trial 1 START (state=EXPM_LR, p_wait=0.997) =====
+01:34:52 [INFO] [Trial 1] Step 1: go_home
+01:34:52 [INFO] [Nav] go_home → (0.0, -1.5) facing WEST
+01:34:52 [INFO] [Nav] Clearing costmaps...
+01:34:52 [INFO] [Nav] Going to (0.00, -1.50) direction=90 timeout=60.0s
+01:35:02 [DEBUG] [Nav] Still navigating... 10.1s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=18, nanosec=168000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=2, nanosec=853000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:35:12 [DEBUG] [Nav] Still navigating... 20.2s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=21, nanosec=39000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.3148360322029362, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=5, nanosec=724000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:35:22 [DEBUG] [Nav] Still navigating... 30.2s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=23, nanosec=910000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=8, nanosec=595000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:35:32 [DEBUG] [Nav] Still navigating... 40.3s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=26, nanosec=814000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=11, nanosec=487000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:35:42 [DEBUG] [Nav] Still navigating... 50.4s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=29, nanosec=670000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=14, nanosec=352000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:35:52 [WARNING] [Nav] Timeout — canceling
+01:35:52 [ERROR] [Trial 1] ABORT: failed to go home
+01:35:52 [WARNING] [Delay 10] Trial 1 returned None
+01:35:52 [INFO] [Delay 10] Trial 2/5
+01:35:52 [INFO] ===== Trial 2 START (state=EXPM_RL, p_wait=0.997) =====
+01:35:52 [INFO] [Trial 2] Step 1: go_home
+01:35:52 [INFO] [Nav] go_home → (0.0, -1.5) facing WEST
+01:35:52 [INFO] [Nav] Clearing costmaps...
+01:35:52 [INFO] [Nav] Going to (0.00, -1.50) direction=90 timeout=60.0s
+01:36:02 [DEBUG] [Nav] Still navigating... 10.1s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=35, nanosec=346000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=2, nanosec=853000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:36:12 [DEBUG] [Nav] Still navigating... 20.2s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=38, nanosec=217000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=5, nanosec=733000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:36:22 [DEBUG] [Nav] Still navigating... 30.2s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=41, nanosec=121000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=8, nanosec=631000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:36:33 [DEBUG] [Nav] Still navigating... 40.3s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=43, nanosec=977000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=11, nanosec=490000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:36:43 [DEBUG] [Nav] Still navigating... 50.4s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=46, nanosec=863000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.3148360322029362, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=14, nanosec=379000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:36:52 [WARNING] [Nav] Timeout — canceling
+01:36:52 [ERROR] [Trial 2] ABORT: failed to go home
+01:36:52 [WARNING] [Delay 10] Trial 2 returned None
+01:36:52 [INFO] [Delay 10] Trial 3/5
+01:36:52 [INFO] ===== Trial 3 START (state=EXPM_LR, p_wait=0.997) =====
+01:36:52 [INFO] [Trial 3] Step 1: go_home
+01:36:52 [INFO] [Nav] go_home → (0.0, -1.5) facing WEST
+01:36:52 [INFO] [Nav] Clearing costmaps...
+01:36:52 [INFO] [Nav] Going to (0.00, -1.50) direction=90 timeout=60.0s
+01:36:52 [WARNING] [Nav] FAILED (status=TaskResult.FAILED) after 0.0s
+01:36:52 [ERROR] [Trial 3] ABORT: failed to go home
+01:36:52 [WARNING] [Delay 10] Trial 3 returned None
+01:36:52 [INFO] [Delay 10] Trial 4/5
+01:36:52 [INFO] ===== Trial 4 START (state=EXPM_LR, p_wait=0.997) =====
+01:36:52 [INFO] [Trial 4] Step 1: go_home
+01:36:52 [INFO] [Nav] go_home → (0.0, -1.5) facing WEST
+01:36:52 [INFO] [Nav] Clearing costmaps...
+01:36:52 [INFO] [Nav] Going to (0.00, -1.50) direction=90 timeout=60.0s
+01:37:02 [DEBUG] [Nav] Still navigating... 10.1s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=52, nanosec=491000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=2, nanosec=838000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:37:13 [DEBUG] [Nav] Still navigating... 20.2s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=55, nanosec=377000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=5, nanosec=715000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:37:23 [DEBUG] [Nav] Still navigating... 30.3s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=58, nanosec=266000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=8, nanosec=613000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:37:33 [DEBUG] [Nav] Still navigating... 40.3s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=61, nanosec=137000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=11, nanosec=484000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:37:43 [DEBUG] [Nav] Still navigating... 50.4s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=64, nanosec=8000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=14, nanosec=352000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:37:53 [WARNING] [Nav] Timeout — canceling
+01:37:53 [ERROR] [Trial 4] ABORT: failed to go home
+01:37:53 [WARNING] [Delay 10] Trial 4 returned None
+01:37:53 [INFO] [Delay 10] Trial 5/5
+01:37:53 [INFO] ===== Trial 5 START (state=EXPM_RL, p_wait=0.997) =====
+01:37:53 [INFO] [Trial 5] Step 1: go_home
+01:37:53 [INFO] [Nav] go_home → (0.0, -1.5) facing WEST
+01:37:53 [INFO] [Nav] Clearing costmaps...
+01:37:53 [INFO] [Nav] Going to (0.00, -1.50) direction=90 timeout=60.0s
+01:37:53 [WARNING] [Nav] FAILED (status=TaskResult.FAILED) after 0.0s
+01:37:53 [ERROR] [Trial 5] ABORT: failed to go home
+01:37:53 [WARNING] [Delay 10] Trial 5 returned None
+01:37:53 [INFO] --- Delay 20s (p_wait=0.988) ---
+01:37:53 [INFO] [Delay 20] Trial 1/5
+01:37:53 [INFO] ===== Trial 6 START (state=EXPM_LR, p_wait=0.988) =====
+01:37:53 [INFO] [Trial 6] Step 1: go_home
+01:37:53 [INFO] [Nav] go_home → (0.0, -1.5) facing WEST
+01:37:53 [INFO] [Nav] Clearing costmaps...
+01:37:53 [INFO] [Nav] Going to (0.00, -1.50) direction=90 timeout=60.0s
+01:38:03 [DEBUG] [Nav] Still navigating... 10.1s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=69, nanosec=672000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=2, nanosec=856000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:38:13 [DEBUG] [Nav] Still navigating... 20.2s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=72, nanosec=444000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=5, nanosec=634000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:38:23 [DEBUG] [Nav] Still navigating... 30.3s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=75, nanosec=315000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=8, nanosec=499000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
+01:38:33 [DEBUG] [Nav] Still navigating... 40.3s elapsed, feedback=nav2_msgs.action.NavigateToPose_Feedback(current_pose=geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=78, nanosec=153000000), frame_id='map'), pose=geometry_msgs.msg.Pose(position=geometry_msgs.msg.Point(x=-0.04317262370892029, y=-1.314836032202936, z=0.0), orientation=geometry_msgs.msg.Quaternion(x=0.0, y=0.0, z=-0.6676460341483035, w=0.7444788600665854))), navigation_time=builtin_interfaces.msg.Duration(sec=11, nanosec=337000000), estimated_time_remaining=builtin_interfaces.msg.Duration(sec=0, nanosec=0), number_of_recoveries=0, distance_remaining=0.23481619358062744)
