@@ -18,7 +18,12 @@ import numpy as np
 import rclpy
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
+import math
 from std_msgs.msg import String
+from geometry_msgs.msg import TwistStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from nav_msgs.msg import Odometry
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 from nav2_simple_commander.robot_navigator import TaskResult
 from turtlebot4_navigation.turtlebot4_navigator import TurtleBot4Directions, TurtleBot4Navigator
 
@@ -32,15 +37,15 @@ from delayed_gratification import (
 )
 
 # coordinates in gazebo
-NAV_CENTER = [0.0, -1.5]
-NAV_LEFT_CHAMBER = [-2.5, 1.5]
-NAV_RIGHT_CHAMBER = [2.5, 1.5]
+NAV_CENTER = [0.0, -1.0]
+NAV_LEFT_CHAMBER = [-0.8, 1.8]
+NAV_RIGHT_CHAMBER = [0.8, 1.8]
 NAV_GAP_APPROACH = [0.0, 0.3]
 
 # spawn position (must match sim.py)
 SPAWN_X = 0.0
 SPAWN_Y = -1.0
-SPAWN_YAW = 90.0  # degrees, facing +y = NORTH in TurtleBot4Directions
+SPAWN_YAW = 90.0  # degrees, facing +y = WEST in TurtleBot4Directions
 
 # experiment parameters
 TRAINING_TRIALS = 100
@@ -69,6 +74,23 @@ class StateManager(Node):
         self.cmd_pub = self.create_publisher(String, '/carl/trial_cmd', 10)
         self.vision_cmd_pub = self.create_publisher(String, '/carl/vision_cmd', 10)
         self.confirm_pub = self.create_publisher(String, '/carl/reward_confirm', 10)
+        self.cmd_vel_pub = self.create_publisher(TwistStamped, '/cmd_vel', 10)
+
+        amcl_qos = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+            depth=1)
+        self.amcl_sub = self.create_subscription(
+            PoseWithCovarianceStamped, '/amcl_pose', self._amcl_callback, amcl_qos)
+        self._current_yaw = None
+
+        odom_qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            durability=DurabilityPolicy.VOLATILE,
+            depth=10)
+        self.odom_sub = self.create_subscription(
+            Odometry, '/odom', self._odom_callback, odom_qos)
+        self._odom_yaw = None
 
         self.result_sub = self.create_subscription(
             String, '/carl/trial_result', self.result_callback, 10)
@@ -114,6 +136,18 @@ class StateManager(Node):
         self.get_logger().error(f'[{tag}] {msg}')
 
     # ── callbacks ──
+
+    def _amcl_callback(self, msg: PoseWithCovarianceStamped):
+        q = msg.pose.pose.orientation
+        siny = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        self._current_yaw = math.atan2(siny, cosy)
+
+    def _odom_callback(self, msg: Odometry):
+        q = msg.pose.pose.orientation
+        siny = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        self._odom_yaw = math.atan2(siny, cosy)
 
     def result_callback(self, msg: String):
         data = json.loads(msg.data)
@@ -201,17 +235,66 @@ class StateManager(Node):
 
     # ── navigation ──
 
-    def navigate_to(self, coords, label):
+    def rotate_to_yaw(self, target_yaw_deg, speed=0.5, tolerance_deg=10.0):
+        target = math.radians(target_yaw_deg)
+        tol = math.radians(tolerance_deg)
+        timeout = 30.0
+        dt = 0.05
+
+        if self._odom_yaw is None:
+            self._warn('rotate', 'No odom data yet — waiting up to 5s...')
+            for _ in range(100):
+                time.sleep(0.05)
+                if self._odom_yaw is not None:
+                    break
+            if self._odom_yaw is None:
+                self._err('rotate', 'No odom data — cannot rotate')
+                return
+
+        amcl_yaw = self._current_yaw if self._current_yaw is not None else self._odom_yaw
+        needed_delta = math.atan2(math.sin(target - amcl_yaw),
+                                  math.cos(target - amcl_yaw))
+        target_odom = self._odom_yaw + needed_delta
+
+        self._log('rotate', f'Rotating to yaw={target_yaw_deg:.0f}deg '
+                  f'(delta={math.degrees(needed_delta):.1f}deg, '
+                  f'amcl={math.degrees(amcl_yaw):.1f}deg)...')
+
+        t0 = time.time()
+        while time.time() - t0 < timeout:
+            error = math.atan2(math.sin(target_odom - self._odom_yaw),
+                               math.cos(target_odom - self._odom_yaw))
+            if abs(error) < tol:
+                break
+            angular_z = speed if error > 0 else -speed
+            cmd = TwistStamped()
+            cmd.header.stamp = self.get_clock().now().to_msg()
+            cmd.header.frame_id = 'base_link'
+            cmd.twist.angular.z = angular_z
+            self.cmd_vel_pub.publish(cmd)
+            time.sleep(dt)
+
+        stop = TwistStamped()
+        stop.header.stamp = self.get_clock().now().to_msg()
+        stop.header.frame_id = 'base_link'
+        self.cmd_vel_pub.publish(stop)
+        time.sleep(0.5)
+        elapsed = time.time() - t0
+        odom_deg = math.degrees(self._odom_yaw)
+        amcl_deg = math.degrees(self._current_yaw) if self._current_yaw else '?'
+        self._log('rotate', f'Rotation done in {elapsed:.1f}s. '
+                  f'odom_yaw={odom_deg:.1f}deg amcl_yaw={amcl_deg}')
+
+    def navigate_to(self, coords, label, direction=TurtleBot4Directions.WEST):
         self._log('nav', f'>>> navigate_to {label} ({coords[0]:.2f}, {coords[1]:.2f})')
         self._log('nav', f'    Current zone: {self.current_zone}')
 
         t0 = time.time()
-        goal = self.navigator.getPoseStamped(coords, TurtleBot4Directions.NORTH)
+        goal = self.navigator.getPoseStamped(coords, direction)
         self._log('nav', f'    Goal pose created, calling startToPose...')
         self.navigator.startToPose(goal)
-        elapsed = time.time() - t0
-
         result = self.navigator.getResult()
+        elapsed = time.time() - t0
         result_name = TASK_RESULT_NAMES.get(result, str(result))
         self._log('nav', f'<<< navigate_to {label} finished: {result_name} '
                   f'(took {elapsed:.1f}s, zone={self.current_zone})')
@@ -239,6 +322,10 @@ class StateManager(Node):
         self._log('experiment', 'Undocking...')
         self.navigator.undock()
         self._log('experiment', 'Undock complete.')
+
+        self._log('experiment', 'Post-undock: rotating to face +y (WEST=90deg)...')
+        self.rotate_to_yaw(SPAWN_YAW)
+        self._log('experiment', 'Post-undock rotation complete.')
 
         if self.mode == 'train':
             self.run_training_phase()
@@ -284,9 +371,7 @@ class StateManager(Node):
         self._log('testing', f'=== TESTING PHASE: {len(DELAYS)} delays x '
                   f'{TESTING_TRIALS_PER_DELAY} trials ===')
 
-        self._log('testing', 'Navigating to CENTER before starting trials...')
-        nav_ok = self.navigate_to(NAV_CENTER, 'CENTER')
-        self._log('testing', f'Initial nav to CENTER: {"OK" if nav_ok else "FAILED"}')
+        self._log('testing', 'Robot is in CENTER zone after undock — starting trials.')
 
         for delay_idx, delay in enumerate(DELAYS):
             p_w = prob_wait(delay)
@@ -305,13 +390,24 @@ class StateManager(Node):
                 self._log('trial', 'Step 1: Navigate to GAP_APPROACH')
                 nav_ok = self.navigate_to(NAV_GAP_APPROACH, 'GAP_APPROACH')
                 self._log('trial', f'Nav to GAP_APPROACH: {"OK" if nav_ok else "FAILED"}')
+                if not nav_ok:
+                    self._warn('trial', 'Nav to GAP_APPROACH failed — skipping trial')
+                    self.rotate_to_yaw(270.0)
+                    self.navigate_to(NAV_CENTER, 'CENTER',
+                                         direction=TurtleBot4Directions.EAST)
+                    continue
+
+                self._log('trial', 'Waiting 4s for Nav2 residual commands to drain...')
+                time.sleep(4.0)
 
                 # step 2: vision scan
                 self._log('trial', 'Step 2: Vision scan for both colors')
                 scan_ok = self.vision_scan()
                 if not scan_ok:
                     self._warn('trial', 'Vision scan failed — skipping trial, returning to CENTER')
-                    self.navigate_to(NAV_CENTER, 'CENTER')
+                    self.rotate_to_yaw(270.0)
+                    self.navigate_to(NAV_CENTER, 'CENTER',
+                                         direction=TurtleBot4Directions.EAST)
                     continue
 
                 # step 3: brain decides
@@ -319,7 +415,9 @@ class StateManager(Node):
                 result = self.send_trial_cmd(p_wait=p_w, defer_update=True)
                 if result is None:
                     self._warn('trial', 'Brain returned None — skipping trial, returning to CENTER')
-                    self.navigate_to(NAV_CENTER, 'CENTER')
+                    self.rotate_to_yaw(270.0)
+                    self.navigate_to(NAV_CENTER, 'CENTER',
+                                         direction=TurtleBot4Directions.EAST)
                     continue
 
                 action = result['action']
@@ -334,6 +432,7 @@ class StateManager(Node):
                 target_color = 'yellow' if action == LEFT else 'red'
                 self._log('trial', f'Step 4: Vision seek {target_color} '
                           f'(action={ACTION_NAMES[action]})')
+                time.sleep(2.0)
                 reached = self.vision_seek(target_color)
                 self._log('trial', f'Vision seek {target_color}: '
                           f'{"REACHED" if reached else "NOT REACHED"}')
@@ -367,7 +466,9 @@ class StateManager(Node):
 
                 # step 6: return to center
                 self._log('trial', 'Step 6: Returning to CENTER')
-                self.navigate_to(NAV_CENTER, 'CENTER')
+                self.rotate_to_yaw(270.0)
+                self.navigate_to(NAV_CENTER, 'CENTER',
+                                         direction=TurtleBot4Directions.EAST)
 
             # delay summary
             exp_pct = (100 * exp_correct / exp_total) if exp_total > 0 else 0

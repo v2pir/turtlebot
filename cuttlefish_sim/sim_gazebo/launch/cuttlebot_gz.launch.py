@@ -26,10 +26,12 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
 from launch_ros.actions import Node, PushRosNamespace, SetParameter
 
-# Path to our custom nav2 config with reduced inflation for the divider gap
-CUSTOM_NAV2_PARAMS = os.path.join(
+# Path to our custom configs
+_CONFIG_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    'config', 'nav2.yaml')
+    'config')
+CUSTOM_NAV2_PARAMS = os.path.join(_CONFIG_DIR, 'nav2.yaml')
+CUSTOM_LOCALIZATION_PARAMS = os.path.join(_CONFIG_DIR, 'localization.yaml')
 
 
 ARGUMENTS = [
@@ -110,8 +112,7 @@ def generate_launch_description():
 
     # Localization — launch map_server, amcl, and their lifecycle manager directly
     # instead of going through intermediate launch files that can silently fail.
-    localization_params = PathJoinSubstitution(
-        [pkg_nav, 'config', 'localization.yaml'])
+    localization_params = CUSTOM_LOCALIZATION_PARAMS
     tf_remappings = [('/tf', 'tf'), ('/tf_static', 'tf_static')]
 
     localization = GroupAction([

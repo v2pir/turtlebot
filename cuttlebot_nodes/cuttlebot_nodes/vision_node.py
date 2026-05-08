@@ -22,7 +22,7 @@ from geometry_msgs.msg import TwistStamped
 from cv_bridge import CvBridge
 
 MIN_COLOR_AREA = 150
-TARGET_REACHED_AREA = 3000
+TARGET_REACHED_AREA = 20000
 CENTER_TOLERANCE = 40
 
 APPROACH_FORWARD_SPEED = 0.05
@@ -32,8 +32,8 @@ SCAN_TIMEOUT_SEC = 45.0
 
 SEARCH_TURN_SPEED = 0.25
 TURN_GAIN = 0.002
-FORWARD_SPEED = 0.08
-SLOW_FORWARD_SPEED = 0.04
+FORWARD_SPEED = 0.12
+SLOW_FORWARD_SPEED = 0.06
 
 SEEK_TIMEOUT_SEC = 60.0
 LOG_INTERVAL_SEC = 2.0
@@ -75,7 +75,7 @@ class VisionNode(Node):
         self.status_pub = self.create_publisher(
             String, '/carl/vision_status', 10)
         self.cmd_vel_pub = self.create_publisher(
-            TwistStamped, '/diffdrive_controller/cmd_vel', 10)
+            TwistStamped, '/cmd_vel', 10)
 
         self.control_timer = self.create_timer(0.1, self.control_loop)
 

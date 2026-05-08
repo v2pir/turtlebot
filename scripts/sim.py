@@ -45,7 +45,7 @@ NODES = [
      "-p", f"mode:={MODE}"],
 ]
 
-GAZEBO_STARTUP_DELAY = 15
+GAZEBO_STARTUP_DELAY = 20
 
 
 def wait_for_topic(topic, timeout=120):
@@ -136,6 +136,13 @@ def main():
         if gz_proc.poll() is not None:
             print(f"{RED}[error]{RESET} gazebo exited early!", file=sys.stderr)
             sys.exit(gz_proc.returncode or 1)
+
+        if not TELEOP:
+            print(f"{YELLOW}[wait]{RESET} waiting for /scan topic (lidar bridge)...")
+            if not wait_for_topic("/scan", timeout=60):
+                print(f"{RED}[error]{RESET} timed out waiting for /scan — lidar bridge may have failed", file=sys.stderr)
+                sys.exit(1)
+            print(f"{GREEN}[ready]{RESET} lidar bridge is active")
 
         print(f"{GREEN}[ready]{RESET} gazebo is running\n")
 

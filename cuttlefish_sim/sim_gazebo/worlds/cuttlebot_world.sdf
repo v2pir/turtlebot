@@ -133,13 +133,251 @@
       </link>
     </model>
 
-    <!-- left chamber marker (yellow = live shrimp) — vertical panel -->
+    <!--
+      Underwater scenery: kelp stalks, algae patches, and rocks.
+      Placed asymmetrically along walls to help AMCL localize.
+      Center corridor (x: -1 to 1) kept clear for robot navigation.
+    -->
+
+    <!-- kelp: tall thin cylinders (dark green) -->
+    <model name="kelp_1">
+      <static>true</static>
+      <pose>-3.2 -0.5 0.4 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.18</radius><length>0.8</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.18</radius><length>0.8</length></cylinder></geometry>
+          <material>
+            <ambient>0.1 0.4 0.15 1</ambient>
+            <diffuse>0.1 0.45 0.15 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="kelp_2">
+      <static>true</static>
+      <pose>-3.0 -0.2 0.4 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.15</radius><length>0.8</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.15</radius><length>0.8</length></cylinder></geometry>
+          <material>
+            <ambient>0.08 0.35 0.12 1</ambient>
+            <diffuse>0.08 0.38 0.12 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="kelp_3">
+      <static>true</static>
+      <pose>3.2 1.0 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.20</radius><length>1.0</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.20</radius><length>1.0</length></cylinder></geometry>
+          <material>
+            <ambient>0.1 0.4 0.15 1</ambient>
+            <diffuse>0.1 0.45 0.15 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="kelp_4">
+      <static>true</static>
+      <pose>-2.5 2.3 0.35 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.17</radius><length>0.7</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.17</radius><length>0.7</length></cylinder></geometry>
+          <material>
+            <ambient>0.12 0.42 0.18 1</ambient>
+            <diffuse>0.12 0.45 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- algae patches: low flat clusters (green-brown) -->
+    <model name="algae_1">
+      <static>true</static>
+      <pose>2.8 -2.2 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.6 0.45 0.5</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.6 0.45 0.5</size></box></geometry>
+          <material>
+            <ambient>0.2 0.35 0.1 1</ambient>
+            <diffuse>0.2 0.38 0.1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="algae_2">
+      <static>true</static>
+      <pose>-2.0 -2.5 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.5 0.5 0.5</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.5 0.5 0.5</size></box></geometry>
+          <material>
+            <ambient>0.15 0.3 0.08 1</ambient>
+            <diffuse>0.15 0.32 0.08 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- rocks: small irregular shapes (gray-brown) -->
+    <model name="rock_1">
+      <static>true</static>
+      <pose>3.0 -0.8 0.15 0 0 0.3</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.45 0.35 0.3</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.45 0.35 0.3</size></box></geometry>
+          <material>
+            <ambient>0.4 0.35 0.28 1</ambient>
+            <diffuse>0.4 0.35 0.28 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="rock_2">
+      <static>true</static>
+      <pose>-1.8 1.8 0.125 0 0 0.7</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.4 0.3 0.25</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.4 0.3 0.25</size></box></geometry>
+          <material>
+            <ambient>0.35 0.3 0.25 1</ambient>
+            <diffuse>0.35 0.3 0.25 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- corridor pillar — breaks L/R symmetry near robot path -->
+    <model name="corridor_pillar_1">
+      <static>true</static>
+      <pose>-1.5 -0.8 0.2 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.12</radius><length>0.4</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.12</radius><length>0.4</length></cylinder></geometry>
+          <material>
+            <ambient>0.45 0.4 0.3 1</ambient>
+            <diffuse>0.45 0.4 0.3 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- rock near CENTER area -->
+    <model name="corridor_rock_2">
+      <static>true</static>
+      <pose>1.5 -2.0 0.15 0 0 0.5</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.35 0.25 0.3</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.35 0.25 0.3</size></box></geometry>
+          <material>
+            <ambient>0.38 0.33 0.26 1</ambient>
+            <diffuse>0.38 0.33 0.26 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- large NE corner feature — breaks north wall symmetry -->
+    <model name="corner_feature_ne">
+      <static>true</static>
+      <pose>3.0 2.2 0.3 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.6 0.4 0.6</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.6 0.4 0.6</size></box></geometry>
+          <material>
+            <ambient>0.3 0.28 0.22 1</ambient>
+            <diffuse>0.3 0.28 0.22 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!--
+      Divider wall with 1.2m gap at y=1.0
+      Creates physical chambers and gives AMCL a major asymmetric lidar feature.
+      Left wall: x=-4.0 to x=-0.6, right wall: x=0.6 to x=4.0
+    -->
+    <model name="divider_left">
+      <static>true</static>
+      <pose>-2.3 1.0 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>3.4 0.15 2.5</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>3.4 0.15 2.5</size></box></geometry>
+          <material>
+            <ambient>0.9 0.9 0.9 1</ambient>
+            <diffuse>0.9 0.9 0.9 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="divider_right">
+      <static>true</static>
+      <pose>2.3 1.0 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>3.4 0.15 2.5</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>3.4 0.15 2.5</size></box></geometry>
+          <material>
+            <ambient>0.9 0.9 0.9 1</ambient>
+            <diffuse>0.9 0.9 0.9 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- left chamber marker (yellow = live shrimp) -->
     <model name="marker_left">
       <static>true</static>
-      <pose>-2.5 2.5 0.3 0 0 0</pose>
+      <pose>-0.8 2.0 0.4 0 0 0</pose>
       <link name="link">
         <visual name="visual">
-          <geometry><box><size>0.8 0.05 0.6</size></box></geometry>
+          <geometry><box><size>1.2 0.05 0.8</size></box></geometry>
           <material>
             <ambient>0.9 0.9 0.1 1</ambient>
             <diffuse>0.9 0.9 0.1 1</diffuse>
@@ -148,13 +386,13 @@
       </link>
     </model>
 
-    <!-- right chamber marker (red = dead shrimp) — vertical panel -->
+    <!-- right chamber marker (red = dead shrimp) — visible through gap from approach -->
     <model name="marker_right">
       <static>true</static>
-      <pose>2.5 2.5 0.3 0 0 0</pose>
+      <pose>0.8 2.0 0.4 0 0 0</pose>
       <link name="link">
         <visual name="visual">
-          <geometry><box><size>0.8 0.05 0.6</size></box></geometry>
+          <geometry><box><size>1.2 0.05 0.8</size></box></geometry>
           <material>
             <ambient>0.9 0.2 0.1 1</ambient>
             <diffuse>0.9 0.2 0.1 1</diffuse>

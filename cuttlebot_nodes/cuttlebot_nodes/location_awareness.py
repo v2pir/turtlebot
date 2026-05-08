@@ -56,8 +56,8 @@ class LocationAwareness(Node):
         self._log('init', 'Location awareness node started.')
         self._log('init', 'Subscribed to /amcl_pose (RELIABLE/TRANSIENT_LOCAL) and /odom (sensor_data)')
         self._log('init', 'Publishing zones to /carl/zone')
-        self._log('init', 'Zone boundaries: CENTER(y<-0.3), GAP(else), '
-                  'LEFT_CHAMBER(y>0.5,x<-0.8), RIGHT_CHAMBER(y>0.5,x>0.8)')
+        self._log('init', 'Zone boundaries: CENTER(y<-0.3), GAP(-0.3<=y<=1.2), '
+                  'LEFT_CHAMBER(y>1.2,x<0), RIGHT_CHAMBER(y>1.2,x>=0)')
 
     def _log(self, tag, msg):
         self.get_logger().info(f'[loc:{tag}] {msg}')
@@ -108,9 +108,9 @@ class LocationAwareness(Node):
             return None
         if self.y < -0.3:
             return 'CENTER'
-        elif self.y > 0.5 and self.x < -0.8:
+        elif self.y > 1.2 and self.x < 0:
             return 'LEFT_CHAMBER'
-        elif self.y > 0.5 and self.x > 0.8:
+        elif self.y > 1.2 and self.x >= 0:
             return 'RIGHT_CHAMBER'
         else:
             return 'GAP'
