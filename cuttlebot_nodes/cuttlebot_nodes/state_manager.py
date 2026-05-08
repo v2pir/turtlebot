@@ -392,7 +392,6 @@ class StateManager(Node):
                 self._log('trial', f'Nav to GAP_APPROACH: {"OK" if nav_ok else "FAILED"}')
                 if not nav_ok:
                     self._warn('trial', 'Nav to GAP_APPROACH failed — skipping trial')
-                    self.rotate_to_yaw(270.0)
                     self.navigate_to(NAV_CENTER, 'CENTER',
                                          direction=TurtleBot4Directions.EAST)
                     continue
@@ -405,7 +404,6 @@ class StateManager(Node):
                 scan_ok = self.vision_scan()
                 if not scan_ok:
                     self._warn('trial', 'Vision scan failed — skipping trial, returning to CENTER')
-                    self.rotate_to_yaw(270.0)
                     self.navigate_to(NAV_CENTER, 'CENTER',
                                          direction=TurtleBot4Directions.EAST)
                     continue
@@ -415,7 +413,6 @@ class StateManager(Node):
                 result = self.send_trial_cmd(p_wait=p_w, defer_update=True)
                 if result is None:
                     self._warn('trial', 'Brain returned None — skipping trial, returning to CENTER')
-                    self.rotate_to_yaw(270.0)
                     self.navigate_to(NAV_CENTER, 'CENTER',
                                          direction=TurtleBot4Directions.EAST)
                     continue
@@ -428,14 +425,20 @@ class StateManager(Node):
                           f'action={ACTION_NAMES[action]} reward={reward:.1f} '
                           f'experimental={is_exp}')
 
-                # step 4: vision seek
-                target_color = 'yellow' if action == LEFT else 'red'
-                self._log('trial', f'Step 4: Vision seek {target_color} '
+                # step 4: navigate to chosen chamber
+                if action == LEFT:
+                    chamber_coords = NAV_LEFT_CHAMBER
+                    chamber_label = 'LEFT_CHAMBER'
+                else:
+                    chamber_coords = NAV_RIGHT_CHAMBER
+                    chamber_label = 'RIGHT_CHAMBER'
+                self._log('trial', f'Step 4: Navigate to {chamber_label} '
                           f'(action={ACTION_NAMES[action]})')
-                time.sleep(2.0)
-                reached = self.vision_seek(target_color)
-                self._log('trial', f'Vision seek {target_color}: '
-                          f'{"REACHED" if reached else "NOT REACHED"}')
+                reached = self.navigate_to(chamber_coords, chamber_label)
+                self._log('trial', f'Nav to {chamber_label}: '
+                          f'{"REACHED" if reached else "FAILED"}')
+                if reached:
+                    time.sleep(2.0)
 
                 # step 5: confirm reward
                 actual_reward = reward if reached else 0.0
@@ -466,7 +469,6 @@ class StateManager(Node):
 
                 # step 6: return to center
                 self._log('trial', 'Step 6: Returning to CENTER')
-                self.rotate_to_yaw(270.0)
                 self.navigate_to(NAV_CENTER, 'CENTER',
                                          direction=TurtleBot4Directions.EAST)
 
