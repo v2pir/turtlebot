@@ -91,17 +91,17 @@ class VisionNode(Node):
         contours, _ = cv2.findContours(
             mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if not contours:
-            return None, 0
+            return None, 0, None
         largest = max(contours, key=cv2.contourArea)
         area = cv2.contourArea(largest)
         if area < MIN_COLOR_AREA:
-            return None, area
+            return None, area, None
         M = cv2.moments(largest)
         if M['m00'] == 0:
-            return None, area
+            return None, area, None
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
-        return (cx, cy), area
+        return (cx, cy), area, largest
 
     def image_callback(self, msg):
         self.frame_count += 1
@@ -114,8 +114,8 @@ class VisionNode(Node):
 
         yellow_mask = cv2.inRange(hsv, (20, 100, 100), (35, 255, 255))
 
-        self.red_center, self.red_area = self._largest_contour(red_mask)
-        self.yellow_center, self.yellow_area = self._largest_contour(yellow_mask)
+        self.red_center, self.red_area, red_contour = self._largest_contour(red_mask)
+        self.yellow_center, self.yellow_area, yellow_contour = self._largest_contour(yellow_mask)
         self.image_width = frame.shape[1]
 
         if self.frame_count == 1:
@@ -123,6 +123,20 @@ class VisionNode(Node):
         elif self.frame_count % 100 == 0:
             self._log('camera', f'Frame #{self.frame_count} | '
                       f'red_area={self.red_area:.0f} yellow_area={self.yellow_area:.0f}')
+
+        if self.frame_count % 5 == 0:
+            debug = frame.copy()
+            if red_contour is not None:
+                x, y, w, h = cv2.boundingRect(red_contour)
+                cv2.rectangle(debug, (x, y), (x+w, y+h), (0, 0, 255), 2)
+                cv2.putText(debug, f'RED {self.red_area:.0f}', (x, y-5),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+            if yellow_contour is not None:
+                x, y, w, h = cv2.boundingRect(yellow_contour)
+                cv2.rectangle(debug, (x, y), (x+w, y+h), (0, 255, 255), 2)
+                cv2.putText(debug, f'YLW {self.yellow_area:.0f}', (x, y-5),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
+            cv2.imwrite('/tmp/carl_camera.png', debug)
 
         det = {
             'red_center': list(self.red_center) if self.red_center else None,

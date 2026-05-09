@@ -54,7 +54,7 @@ def wait_for_topic(topic, timeout=120):
     while time.time() - start < timeout:
         result = subprocess.run(
             ["ros2", "topic", "list"],
-            capture_output=True, text=True, timeout=10)
+            capture_output=True, text=True, timeout=30)
         if topic in result.stdout.splitlines():
             return True
         time.sleep(3)
