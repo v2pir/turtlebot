@@ -28,7 +28,7 @@ CENTER_TOLERANCE = 40
 APPROACH_FORWARD_SPEED = 0.05
 SCAN_ANGULAR_SPEED = 0.12
 SCAN_SWITCH_SEC = 2.0
-SCAN_TIMEOUT_SEC = 45.0
+SCAN_TIMEOUT_SEC = 10.0
 
 SEARCH_TURN_SPEED = 0.25
 TURN_GAIN = 0.002
@@ -207,13 +207,6 @@ class VisionNode(Node):
                        f'saw_red={self.saw_red} saw_yellow={self.saw_yellow}')
             return
 
-        if now - self.last_scan_switch > SCAN_SWITCH_SEC:
-            self.scan_direction *= -1
-            self.last_scan_switch = now
-
-        self._publish_cmd(
-            APPROACH_FORWARD_SPEED,
-            SCAN_ANGULAR_SPEED * self.scan_direction)
 
     def _do_seek(self, now):
         if self.image_width is None:

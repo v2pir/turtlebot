@@ -40,7 +40,7 @@ from delayed_gratification import (
 NAV_CENTER = [0.0, -1.0]
 NAV_LEFT_CHAMBER = [-0.8, 1.8]
 NAV_RIGHT_CHAMBER = [0.8, 1.8]
-NAV_GAP_APPROACH = [0.0, 0.3]
+NAV_GAP_APPROACH = [0.0, -0.2]
 
 # spawn position (must match sim.py)
 SPAWN_X = 0.0
@@ -396,8 +396,8 @@ class StateManager(Node):
                                          direction=TurtleBot4Directions.EAST)
                     continue
 
-                self._log('trial', 'Waiting 4s for Nav2 residual commands to drain...')
-                time.sleep(4.0)
+                self._log('trial', 'Waiting 2s for camera to stabilise...')
+                time.sleep(2.0)
 
                 # step 2: vision scan
                 self._log('trial', 'Step 2: Vision scan for both colors')

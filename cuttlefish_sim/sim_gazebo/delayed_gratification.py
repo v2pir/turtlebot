@@ -44,8 +44,18 @@ ACTION_NAMES = ["LEFT", "RIGHT"]
 class QTable:
     """wrap the Q-table in a class"""
 
-    def __init__(self):
-        self.table = [[0.0 for _ in range(ACTIONS)] for _ in range(STATES)]
+    PRETRAINED = [
+        [3.588, 0.469],  # EXPM_LR: live/yellow LEFT, dead/red RIGHT
+        [0.410, 4.074],  # EXPM_RL: dead/red LEFT, live/yellow RIGHT
+        [0.400, 0.650],  # CTRL_LR: unobtainable LEFT, dead RIGHT
+        [0.750, 0.340],  # CTRL_RL: dead LEFT, unobtainable RIGHT
+    ]
+
+    def __init__(self, pretrained=True):
+        if pretrained:
+            self.table = [row[:] for row in self.PRETRAINED]
+        else:
+            self.table = [[0.0 for _ in range(ACTIONS)] for _ in range(STATES)]
 
     def get(self, state, action):
         return self.table[state][action]
