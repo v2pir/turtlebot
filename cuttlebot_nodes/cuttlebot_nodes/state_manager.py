@@ -34,6 +34,7 @@ sys.path.insert(0, os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo'))
 from delayed_gratification import (
     prob_wait, STATE_NAMES, ACTION_NAMES,
     LEFT, DEAD_RWD, UNOBTAINABLE_RWD, STATES,
+    EXPM_LR, EXPM_RL, CTRL_LR, CTRL_RL,
 )
 
 # coordinates in gazebo
@@ -101,6 +102,9 @@ class StateManager(Node):
         self.vision_status_sub = self.create_subscription(
             String, '/carl/vision_status', self.vision_status_callback, 10)
 
+        self.color_det_sub = self.create_subscription(
+            String, '/carl/color_detection', self._color_detection_callback, 10)
+
         # state
         self.last_result = None
         self._result_event = threading.Event()
@@ -109,6 +113,11 @@ class StateManager(Node):
         # vision state
         self._vision_status = None
         self._vision_event = threading.Event()
+
+        # color observation state (updated during navigation)
+        self._saw_red = False
+        self._saw_yellow = False
+        self._arrangement_lr = True
 
         # store results
         self.training_results = []
@@ -167,6 +176,22 @@ class StateManager(Node):
         self._log('cb:vision', f'Got vision status: {data}')
         self._vision_status = data
         self._vision_event.set()
+
+    def _color_detection_callback(self, msg: String):
+        data = json.loads(msg.data)
+        red_center = data.get('red_center')
+        red_area = data.get('red_area', 0)
+        yellow_center = data.get('yellow_center')
+        yellow_area = data.get('yellow_area', 0)
+
+        if red_center and red_area >= 150:
+            self._saw_red = True
+        if yellow_center and yellow_area >= 150:
+            self._saw_yellow = True
+
+        if (red_center and red_area >= 150 and
+                yellow_center and yellow_area >= 150):
+            self._arrangement_lr = yellow_center[0] < red_center[0]
 
     # ── vision helpers ──
 
@@ -386,8 +411,10 @@ class StateManager(Node):
             for t in range(TESTING_TRIALS_PER_DELAY):
                 self._log('trial', f'--- Delay={delay}s Trial {t+1}/{TESTING_TRIALS_PER_DELAY} ---')
 
-                # step 1: navigate to gap
-                self._log('trial', 'Step 1: Navigate to GAP_APPROACH')
+                # step 1: observe colors during approach
+                self._saw_red = False
+                self._saw_yellow = False
+                self._log('trial', 'Step 1: Navigate to GAP_APPROACH (observing colors)')
                 nav_ok = self.navigate_to(NAV_GAP_APPROACH, 'GAP_APPROACH')
                 self._log('trial', f'Nav to GAP_APPROACH: {"OK" if nav_ok else "FAILED"}')
                 if not nav_ok:
@@ -396,21 +423,31 @@ class StateManager(Node):
                                          direction=TurtleBot4Directions.EAST)
                     continue
 
-                self._log('trial', 'Waiting 2s for camera to stabilise...')
-                time.sleep(2.0)
-
-                # step 2: vision scan
-                self._log('trial', 'Step 2: Vision scan for both colors')
-                scan_ok = self.vision_scan()
-                if not scan_ok:
-                    self._warn('trial', 'Vision scan failed — skipping trial, returning to CENTER')
+                # step 2: check color observations from approach
+                self._log('trial', f'Step 2: Color check — saw_red={self._saw_red} '
+                          f'saw_yellow={self._saw_yellow} '
+                          f'arrangement={"LR" if self._arrangement_lr else "RL"}')
+                if not (self._saw_red and self._saw_yellow):
+                    self._warn('trial', 'Did not observe both colors during approach — skipping trial')
                     self.navigate_to(NAV_CENTER, 'CENTER',
                                          direction=TurtleBot4Directions.EAST)
                     continue
 
+                is_lr = self._arrangement_lr
+                is_experimental = np.random.random() < 0.5
+                if is_experimental:
+                    forced_state = EXPM_LR if is_lr else EXPM_RL
+                else:
+                    forced_state = CTRL_LR if is_lr else CTRL_RL
+                self._log('trial', f'Vision: {"LR" if is_lr else "RL"}, '
+                          f'{"experimental" if is_experimental else "control"} '
+                          f'→ {STATE_NAMES[forced_state]}')
+
                 # step 3: brain decides
-                self._log('trial', f'Step 3: Brain decision (p_wait={p_w:.4f}, defer_update=True)')
-                result = self.send_trial_cmd(p_wait=p_w, defer_update=True)
+                self._log('trial', f'Step 3: Brain decision (p_wait={p_w:.4f}, '
+                          f'state={STATE_NAMES[forced_state]}, defer_update=True)')
+                result = self.send_trial_cmd(p_wait=p_w, forced_state=forced_state,
+                                             defer_update=True)
                 if result is None:
                     self._warn('trial', 'Brain returned None — skipping trial, returning to CENTER')
                     self.navigate_to(NAV_CENTER, 'CENTER',

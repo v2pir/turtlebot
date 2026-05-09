@@ -195,7 +195,9 @@ class VisionNode(Node):
         if self.saw_red and self.saw_yellow:
             self._stop()
             self.mode = 'idle'
-            self._publish_status('both_seen')
+            self._publish_status('both_seen',
+                red_center=list(self.red_center) if self.red_center else None,
+                yellow_center=list(self.yellow_center) if self.yellow_center else None)
             self._log('scan', 'BOTH colors seen! Publishing both_seen.')
             return
 
