@@ -21,7 +21,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.realpath(__file__))))
 sys.path.insert(0, os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo'))
 from delayed_gratification import (
-    STATES, DEAD_RWD, UNOBTAINABLE_RWD,
+    STATES, DEAD_RWD,
 )
 RESULTS_FILE = os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo', 'results.json')
 OUTPUT_DIR = os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo', 'plots')
@@ -59,8 +59,6 @@ def plot_training(results):
     labels = [
         "EXPM_LR (Live Left)",
         "EXPM_RL (Live Right)",
-        "CTRL_LR (Dead Right)",
-        "CTRL_RL (Dead Left)",
     ]
 
     plt.figure(figsize=(10, 6))
@@ -81,37 +79,23 @@ def plot_training(results):
 
 
 def plot_testing(results):
-    """Plot experimental vs control performance across delays."""
+    """Plot percent choosing live (patient) option across delays."""
     testing = results['testing']
     delays = results['delays']
 
-    exp_percent = []
-    ctrl_percent = []
+    percent_correct = []
 
     for d in delays:
         trials = testing.get(str(d), [])
-        exp_total = 0
-        exp_correct = 0
-        ctrl_total = 0
-        ctrl_correct = 0
-
-        for trial in trials:
-            if trial['is_experimental']:
-                exp_total += 1
-                exp_correct += int(trial['reward'] > DEAD_RWD)
-            else:
-                ctrl_total += 1
-                ctrl_correct += int(trial['reward'] > UNOBTAINABLE_RWD)
-
-        exp_percent.append((100 * exp_correct / exp_total) if exp_total > 0 else 0)
-        ctrl_percent.append((100 * ctrl_correct / ctrl_total) if ctrl_total > 0 else 0)
+        total = len(trials)
+        correct = sum(1 for trial in trials if trial['correct'])
+        percent_correct.append((100 * correct / total) if total > 0 else 0)
 
     plt.figure(figsize=(10, 6))
-    plt.plot(delays, exp_percent, marker='o', linewidth=2, label="Experimental")
-    plt.plot(delays, ctrl_percent, marker='s', linewidth=2, label="Control")
+    plt.plot(delays, percent_correct, marker='o', linewidth=2, label="Chose Live (Patient)")
     plt.xlabel("Delay (seconds)")
-    plt.ylabel("Percent Choosing Better Option (%)")
-    plt.title("Delayed Gratification Performance vs. Delay")
+    plt.ylabel("Percent Choosing Live Shrimp (%)")
+    plt.title("Delayed Gratification: Patience vs. Delay")
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.legend()
 

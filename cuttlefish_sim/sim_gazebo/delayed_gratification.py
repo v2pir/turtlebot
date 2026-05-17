@@ -21,23 +21,20 @@ LEFT = 0
 RIGHT = 1
 
 # States
-STATES = 4
+STATES = 2
 EXPM_LR = 0  # Live Shrimp (left); Dead Shrimp (right)
 EXPM_RL = 1  # Live Shrimp (right); Dead Shrimp (left)
-CTRL_LR = 2  # Unobtainable Shrimp (left); Dead Shrimp (right)
-CTRL_RL = 3  # Unobtainable Shrimp (right); Dead Shrimp (left)
 
 # Rewards
 LIVE_RWD = 5.0
 DEAD_RWD = 1.0
-UNOBTAINABLE_RWD = 0.0
 
 # Learning parameters
 ALPHA = 0.10
 BETA = 1.0
 
 # State labels for logging
-STATE_NAMES = ["EXPM_LR", "EXPM_RL", "CTRL_LR", "CTRL_RL"]
+STATE_NAMES = ["EXPM_LR", "EXPM_RL"]
 ACTION_NAMES = ["LEFT", "RIGHT"]
 
 
@@ -47,8 +44,6 @@ class QTable:
     PRETRAINED = [
         [3.588, 0.469],  # EXPM_LR: live/yellow LEFT, dead/red RIGHT
         [0.410, 4.074],  # EXPM_RL: dead/red LEFT, live/yellow RIGHT
-        [0.400, 0.650],  # CTRL_LR: unobtainable LEFT, dead RIGHT
-        [0.750, 0.340],  # CTRL_RL: dead LEFT, unobtainable RIGHT
     ]
 
     def __init__(self, pretrained=True):
@@ -123,21 +118,13 @@ def run_trial(qtable, p_wait, forced_state=None, update=True):
     qtable: QTable instance
     p_wait: probability of waiting (1.0 = no delay effect)
     forced_state: if provided, use this state instead of random
-    return: (reward, is_experimental, state, action)
+    return: (reward, is_experimental (always True), state, action)
     """
-    # pick a state randomly or use forced_state (25% chance for each state)
+    # pick a state randomly or use forced_state (50% chance for each state)
     if forced_state is not None:
         current_state = forced_state
     else:
-        r = random.random()
-        if r < 0.25:
-            current_state = EXPM_LR
-        elif r < 0.50:
-            current_state = EXPM_RL
-        elif r < 0.75:
-            current_state = CTRL_LR
-        else:
-            current_state = CTRL_RL
+        current_state = EXPM_LR if random.random() < 0.5 else EXPM_RL
 
     # copy q-values so patience discount doesn't change the table
     q = list(qtable.get_row(current_state))
@@ -154,29 +141,19 @@ def run_trial(qtable, p_wait, forced_state=None, update=True):
     # determine reward based on state and action
     if current_state == EXPM_LR:
         rwd = LIVE_RWD if act == LEFT else DEAD_RWD
-    elif current_state == EXPM_RL:
-        rwd = DEAD_RWD if act == LEFT else LIVE_RWD
-    elif current_state == CTRL_LR:
-        rwd = UNOBTAINABLE_RWD if act == LEFT else DEAD_RWD
     else:
-        rwd = DEAD_RWD if act == LEFT else UNOBTAINABLE_RWD
+        rwd = DEAD_RWD if act == LEFT else LIVE_RWD
 
     # update q-table with actual reward
     if update:
         qtable.update(current_state, act, rwd)
 
-    is_experimental = current_state < CTRL_LR
-
-    return rwd, is_experimental, current_state, act
+    return rwd, True, current_state, act
 
 
 def is_correct(state, action):
     """check if the action is the 'correct' (higher reward) choice for a state."""
     if state == EXPM_LR:
         return action == LEFT
-    elif state == EXPM_RL:
-        return action == RIGHT
-    elif state == CTRL_LR:
-        return action == RIGHT
     else:
-        return action == LEFT
+        return action == RIGHT

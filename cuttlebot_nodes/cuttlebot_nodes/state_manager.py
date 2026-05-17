@@ -33,8 +33,8 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
 sys.path.insert(0, os.path.join(REPO_ROOT, 'cuttlefish_sim', 'sim_gazebo'))
 from delayed_gratification import (
     prob_wait, STATE_NAMES, ACTION_NAMES,
-    LEFT, DEAD_RWD, UNOBTAINABLE_RWD, STATES,
-    EXPM_LR, EXPM_RL, CTRL_LR, CTRL_RL,
+    LEFT, DEAD_RWD, STATES,
+    EXPM_LR, EXPM_RL,
 )
 
 # coordinates in gazebo
@@ -403,10 +403,8 @@ class StateManager(Node):
             self._log('testing', f'===== Delay {delay_idx+1}/{len(DELAYS)}: '
                       f'{delay}s (p_wait={p_w:.4f}) =====')
 
-            exp_total = 0
-            exp_correct = 0
-            ctrl_total = 0
-            ctrl_correct = 0
+            total = 0
+            correct = 0
 
             for t in range(TESTING_TRIALS_PER_DELAY):
                 self._log('trial', f'--- Delay={delay}s Trial {t+1}/{TESTING_TRIALS_PER_DELAY} ---')
@@ -434,13 +432,8 @@ class StateManager(Node):
                     continue
 
                 is_lr = self._arrangement_lr
-                is_experimental = np.random.random() < 0.5
-                if is_experimental:
-                    forced_state = EXPM_LR if is_lr else EXPM_RL
-                else:
-                    forced_state = CTRL_LR if is_lr else CTRL_RL
-                self._log('trial', f'Vision: {"LR" if is_lr else "RL"}, '
-                          f'{"experimental" if is_experimental else "control"} '
+                forced_state = EXPM_LR if is_lr else EXPM_RL
+                self._log('trial', f'Vision: {"LR" if is_lr else "RL"} '
                           f'→ {STATE_NAMES[forced_state]}')
 
                 # step 3: brain decides
@@ -455,12 +448,10 @@ class StateManager(Node):
                     continue
 
                 action = result['action']
-                is_exp = result['is_experimental']
                 reward = result['reward']
                 state = result['state']
                 self._log('trial', f'Brain decided: state={STATE_NAMES[state]} '
-                          f'action={ACTION_NAMES[action]} reward={reward:.1f} '
-                          f'experimental={is_exp}')
+                          f'action={ACTION_NAMES[action]} reward={reward:.1f}')
 
                 # step 4: navigate to chosen chamber
                 if action == LEFT:
@@ -492,17 +483,12 @@ class StateManager(Node):
                 result['reached'] = reached
 
                 # record
-                if is_exp:
-                    exp_total += 1
-                    exp_correct += int(actual_reward > DEAD_RWD)
-                else:
-                    ctrl_total += 1
-                    ctrl_correct += int(actual_reward > UNOBTAINABLE_RWD)
+                total += 1
+                correct += int(result['correct'])
                 self.testing_results[delay].append(result)
 
                 self._log('trial', f'Trial result: reward={actual_reward:.1f} '
-                          f'exp_correct={exp_correct}/{exp_total} '
-                          f'ctrl_correct={ctrl_correct}/{ctrl_total}')
+                          f'correct={correct}/{total}')
 
                 # step 6: return to center
                 self._log('trial', 'Step 6: Returning to CENTER')
@@ -510,11 +496,9 @@ class StateManager(Node):
                                          direction=TurtleBot4Directions.EAST)
 
             # delay summary
-            exp_pct = (100 * exp_correct / exp_total) if exp_total > 0 else 0
-            ctrl_pct = (100 * ctrl_correct / ctrl_total) if ctrl_total > 0 else 0
+            pct = (100 * correct / total) if total > 0 else 0
             self._log('testing', f'Delay {delay}s summary: '
-                      f'experimental={exp_pct:.1f}% ({exp_correct}/{exp_total}), '
-                      f'control={ctrl_pct:.1f}% ({ctrl_correct}/{ctrl_total})')
+                      f'correct={pct:.1f}% ({correct}/{total})')
 
         self._log('testing', 'Testing phase complete.')
 
